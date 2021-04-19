@@ -1,6 +1,5 @@
 import { GambleMode } from './gamble-mode';
 import { GambleResult, GambleResultType } from './gamble-result';
-import { randomInt } from 'crypto';
 
 export class GambleModePercentage implements GambleMode {
     private readonly maxRoll: number = 100;
@@ -40,7 +39,6 @@ export class GambleModePercentage implements GambleMode {
      * @private
      */
     private static randIntInclusive(max: number): number {
-        // return randomInt(0, max + 1);
         return Math.floor(Math.random() * (max + 1));
     }
 }

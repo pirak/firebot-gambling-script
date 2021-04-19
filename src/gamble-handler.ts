@@ -56,12 +56,7 @@ export class GambleHandler {
             const message = this.replaceMessagePlaceholders(params, result, params.messageWon);
             effects.push(new ChatMessageEffect(message));
         } else if (result.type === GambleResultType.Lost) {
-            const pointsRemove = new CurrencyEffect(
-                params.currencyId,
-                CurrencyAction.Remove,
-                username,
-                result.amount,
-            );
+            const pointsRemove = new CurrencyEffect(params.currencyId, CurrencyAction.Remove, username, result.amount);
             effects.push(pointsRemove);
 
             const resetJackpot = new UpdateCounterEffect(
