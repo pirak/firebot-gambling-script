@@ -29,8 +29,8 @@ jobs:
       run: yarn build
     - name: Install zip
       run: |
-        apt-get update
-        apt-get -y install zip
+        sudo apt-get update
+        sudo apt-get -y install zip
     - name: Create Release Zip
       run: |
         cp README.md dist/
