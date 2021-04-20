@@ -1,11 +1,11 @@
 import { GambleHandler } from '../src/gamble-handler';
 import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
-import { ArgumentsOf, replaceMessageParams, mockExpectedRoll } from './helpers';
+import { ArgumentsOf, mockExpectedRoll, replaceMessageParams } from './helpers';
 import { ScriptModules } from 'firebot-custom-scripts-types';
 import { defaultParams, Params } from '../src/main';
 import { GambleResult, GambleResultType } from '../src/model/gamble-result';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
-import { CurrencyEffect, CurrencyAction } from '../src/helpers/effects/currency-effect';
+import { CurrencyAction, CurrencyEffect } from '../src/helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
 import { GambleEntry } from '../src/model/gamble-entry';
 
@@ -15,8 +15,6 @@ const mockLogger = {
     warn: jest.fn<void, ArgumentsOf<ScriptModules['logger']['warn']>>(),
     error: jest.fn<void, ArgumentsOf<ScriptModules['logger']['error']>>(),
 };
-
-const gambleHandler = new GambleHandler(new GambleModePercentage(), mockLogger, 100);
 
 const params = defaultParams();
 params.currentJackpotAmount = '1000';
@@ -61,6 +59,8 @@ describe('The Gambling Handler Message Replacer', () => {
 });
 
 describe('The Gambling Handler Effect Creator', () => {
+    const gambleHandler = new GambleHandler(new GambleModePercentage(), mockLogger, 100, 100);
+
     const effectCreator = (params: Params, result: GambleResult) =>
         // @ts-ignore
         gambleHandler.gambleResultEffects(params, 'pirak__', result);
@@ -106,6 +106,8 @@ describe('The Gambling Handler Effect Creator', () => {
 });
 
 describe('The Gambling Handler', () => {
+    const gambleHandler = new GambleHandler(new GambleModePercentage(), mockLogger, 100, 100);
+
     it('should for neutral results only create a chat message', async () => {
         const entry = new GambleEntry('pirak__', 10000, 1000);
         mockExpectedRoll(50);
@@ -147,5 +149,66 @@ describe('The Gambling Handler', () => {
         ];
 
         expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+    });
+
+    it('should disable the jackpot for jackpotPercents <= 0', async () => {
+        const mode = new GambleModePercentage();
+        const mockFn = jest
+            .spyOn(mode, 'winnings')
+            .mockImplementation(() => new GambleResult(GambleResultType.Lost, 40, 120));
+
+        const entry = new GambleEntry('pirak__', 10000, 1000);
+        const gambleHandler = new GambleHandler(mode, mockLogger, 100, 0);
+
+        const expectedEffects = [
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 120),
+            new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 120, 10000 - 120)),
+        ];
+
+        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(mockFn).toHaveBeenCalledWith(1000, false);
+
+        // jackpotPercent -1 should be used as 0
+        const gambleHandler2 = new GambleHandler(mode, mockLogger, 100, -1);
+        expect(gambleHandler2.handle(params, entry)).toEqual(expectedEffects);
+        expect(mockFn).toHaveBeenCalledWith(1000, false);
+    });
+
+    it('should take the jackpot percent into account for values > 0', async () => {
+        const mode = new GambleModePercentage();
+        const mockFn = jest
+            .spyOn(mode, 'winnings')
+            .mockImplementationOnce(() => new GambleResult(GambleResultType.Lost, 40, 120));
+
+        const entry = new GambleEntry('pirak__', 10000, 1000);
+        const gambleHandler = new GambleHandler(mode, mockLogger, 100, 50);
+
+        const expectedEffects = [
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 120),
+            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 60),
+            new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 120, 10000 - 120)),
+        ];
+
+        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(mockFn).toHaveBeenCalledWith(1000, true);
+    });
+
+    it('should round down the amount added to the jackpot', async () => {
+        const mode = new GambleModePercentage();
+        const mockFn = jest
+            .spyOn(mode, 'winnings')
+            .mockImplementationOnce(() => new GambleResult(GambleResultType.Lost, 40, 49));
+
+        const entry = new GambleEntry('pirak__', 10000, 1000);
+        const gambleHandler = new GambleHandler(mode, mockLogger, 100, 50);
+
+        const expectedEffects = [
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 49),
+            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 24),
+            new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 49, 10000 - 49)),
+        ];
+
+        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(mockFn).toHaveBeenCalledWith(1000, true);
     });
 });

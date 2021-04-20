@@ -17,16 +17,26 @@ type Logger = {
 export class GambleHandler {
     private readonly gamblingMode: GambleMode;
     private readonly minimumEntry: number;
+    private readonly jackpotPercent: number;
+    private readonly jackpotEnabled: boolean;
     private readonly logger: Logger;
 
-    constructor(mode: GambleMode, logger: Logger, minimumEntry: number) {
+    constructor(mode: GambleMode, logger: Logger, minimumEntry: number, jackpotPercent: number) {
         this.gamblingMode = mode;
         this.logger = logger;
         this.minimumEntry = Math.floor(minimumEntry);
+
+        if (jackpotPercent <= 0) {
+            this.jackpotPercent = 0;
+            this.jackpotEnabled = false;
+        } else {
+            this.jackpotPercent = jackpotPercent / 100;
+            this.jackpotEnabled = true;
+        }
     }
 
     handle(params: Params, entry: GambleEntry): Effect[] {
-        const gambleResult = this.gamblingMode.winnings(entry.userPointsEntered);
+        const gambleResult = this.gamblingMode.winnings(entry.userPointsEntered, this.jackpotEnabled);
         this.logger.info(`${gambleResult}`);
         return this.gambleResultEffects(params, entry.user, gambleResult);
     }
@@ -55,12 +65,15 @@ export class GambleHandler {
             const pointsRemove = new CurrencyEffect(params.currencyId, CurrencyAction.Remove, username, result.amount);
             effects.push(pointsRemove);
 
-            const resetJackpot = new UpdateCounterEffect(
-                params.jackpotCounterId,
-                UpdateCounterEffectMode.Increment,
-                result.amount,
-            );
-            effects.push(resetJackpot);
+            const jackpotAddAmount = Math.floor(result.amount * this.jackpotPercent);
+            if (jackpotAddAmount > 0) {
+                const addToJackpot = new UpdateCounterEffect(
+                    params.jackpotCounterId,
+                    UpdateCounterEffectMode.Increment,
+                    jackpotAddAmount,
+                );
+                effects.push(addToJackpot);
+            }
 
             const message = GambleHandler.replaceMessagePlaceholders(params, result, params.messageLost);
             effects.push(new ChatMessageEffect(message));

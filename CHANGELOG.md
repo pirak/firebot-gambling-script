@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Add: parameter to define the percentage of points that should be added to the
+  jackpot. Also enables disabling of the jackpot.
 - …
 
 ## v0.1.1

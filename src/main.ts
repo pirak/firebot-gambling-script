@@ -19,6 +19,7 @@ export interface Params {
     jackpotCounterId: string;
     currentJackpotAmount: string;
     minimumEntry: number;
+    jackpotPercent: number;
 
     messageJackpotWon: string;
     messageWon: string;
@@ -38,6 +39,7 @@ export function defaultParams(): Params {
         jackpotCounterId: '71dd1e86-178d-491d-8f61-9c5851faf8a8',
         currentJackpotAmount: '$counter[jackpot]',
         minimumEntry: 100,
+        jackpotPercent: 100,
         userCurrentPoints: '$currency[points, $user]',
 
         messageJackpotWon: 'Rolled %roll. $user won the jackpot of %amount points and now has a total of %newTotal.',
@@ -89,6 +91,13 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
                 description: 'Minimum Entry',
                 secondaryDescription: 'The minimum amount of points users can gamble.',
             },
+            jackpotPercent: {
+                type: 'number',
+                default: params.jackpotPercent,
+                description: 'Jackpot Percent',
+                secondaryDescription:
+                    'Defines which percentage of the lost points should go into the jackpot. Should be >= 0. Values < 0 will be used as 0 and disables the jackpot. E.g. ‘50’ means that 50% of the lost points are added to the jackpot.',
+            },
             messageJackpotWon: {
                 type: 'string',
                 default: params.messageJackpotWon,
@@ -139,6 +148,7 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
                 new GambleModePercentage(),
                 logger,
                 runRequest.parameters.minimumEntry,
+                runRequest.parameters.jackpotPercent,
             );
         }
 

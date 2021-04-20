@@ -14,8 +14,10 @@ export class GambleModePercentage implements GambleMode {
      * - Roll 0:   `gamblingAmount` is lost.
      *
      * @param gamblingAmount the amount the user entered into the bet.
+     * @param jackpotEnabled unused.
      */
-    winnings(gamblingAmount: number): GambleResult {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    winnings(gamblingAmount: number, jackpotEnabled: boolean = true): GambleResult {
         const roll = GambleModePercentage.randIntInclusive(this.maxRoll);
 
         if (roll === this.neutralValue) {
@@ -39,6 +41,7 @@ export class GambleModePercentage implements GambleMode {
      * @private
      */
     private static randIntInclusive(max: number): number {
+        // Node crypto module for proper randomness is not available in Firebot
         return Math.floor(Math.random() * (max + 1));
     }
 }
