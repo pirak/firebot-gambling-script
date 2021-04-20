@@ -28,8 +28,8 @@ jobs:
           ${{ runner.os }}-node_modules-
     - name: Install Dependencies
       run: yarn install
-    - name: TypeScript Test With Typechecking
-      run: yarn test --ci
+    - name: TypeScript Test
+      run: yarn test:coverage --ci
     - name: Annotate Client Test Results
       uses: ashley-taylor/junit-report-annotations-action@9ac2f823854c677f30e062dfe779445e33e5d380
       if: always()
@@ -37,7 +37,7 @@ jobs:
         access-token: ${{ secrets.GITHUB_TOKEN }}
         path: junit.xml
         numFailures: 99
-        
+
   style:
     runs-on: ubuntu-latest
     steps:
