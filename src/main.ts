@@ -60,13 +60,6 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
                 secondaryDescription:
                     'The id of the currency that should be gambled. In Settings open the root folder. There is a folder "currency" with a file "currency.json". In there find the id of the currency that should be used for gambling.',
             },
-            userCurrentPoints: {
-                type: 'string',
-                default: params.userCurrentPoints,
-                description: 'Currency Access',
-                secondaryDescription:
-                    'Variable to access the currency of the user who called the chat command. Replace "points" with the name of your currency.',
-            },
             jackpotCounterId: {
                 type: 'string',
                 default: params.jackpotCounterId,
@@ -74,11 +67,19 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
                 secondaryDescription:
                     'Create a custom counter. In Settings open the root folder. There is a folder "counters" with the file "counters.json". In there find the counter with that name you used before and copy the value of "id" (Careful: not the ids of "maximum/minimumEffects"!).',
             },
+            userCurrentPoints: {
+                type: 'string',
+                default: params.userCurrentPoints,
+                description: 'User Points',
+                secondaryDescription:
+                    'The current amount of currency the calling user has. Replace "points" with the name of your currency.',
+            },
             currentJackpotAmount: {
                 type: 'string',
                 default: params.currentJackpotAmount,
-                description: 'The Current Jackpot Amount',
-                secondaryDescription: 'Replace jackpot with your name of the custom counter used to store the jackpot',
+                description: 'Current Jackpot Amount',
+                secondaryDescription:
+                    'Replace "jackpot" with your name of the custom counter used to store the jackpot.',
             },
             minimumEntry: {
                 type: 'number',
@@ -89,19 +90,19 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
             messageJackpotWon: {
                 type: 'string',
                 default: params.messageJackpotWon,
-                description: 'Message Jackpot Won',
+                description: 'Message on Jackpot Won',
                 secondaryDescription: 'The message sent in chat when a user wins the jackpot.',
             },
             messageLost: {
                 type: 'string',
                 default: params.messageLost,
-                description: 'Message Lost',
+                description: 'Message on Lost',
                 secondaryDescription: 'The message sent in chat when a user loses points.',
             },
             messageWon: {
                 type: 'string',
                 default: params.messageWon,
-                description: 'Message Won',
+                description: 'Message on Won',
                 secondaryDescription: 'The message sent in chat when a user wins points.',
             },
             messageEntryBelowMinimum: {

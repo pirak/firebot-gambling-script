@@ -25,12 +25,24 @@ Inspired by the gambling script made by Castorr91 for the Streamlabs Chatbot.
     ![counter.json](setup_images/counter_id.png "counter.json")
 
 4. Create a command. The trigger can be anything you want.
-    Add a custom script effect to it.
+
+    ![Command Setup Overview](setup_images/command_setup_overview.png)
+
+5. (Optional) add a subcommand that prints the current amount of points in the
+    jackpot to chat.
+
+    ![Command Setup Jackpot](setup_images/command_setup_jackpot.png)
+
+6. Use the fallback command to execute the custom script effect.
     You have to copy the`gamblingScript.js` into the correct folder.
+
+    ![Command Setup Script](setup_images/command_setup_script.png)
 
 5. Paste the two `id`s copied earlier into the correct option fields.
     Make sure that the human-readable names of the currency and jackpot are
     replaced by the correct values in the other options.
+
+    ![Command Setup Script Details](setup_images/command_setup_script_detail.png)
 
 6. Adapt the messages the bot sends for different events as you like.
     Regular substitution of variables starting with `$` works as usual.
@@ -40,6 +52,8 @@ Inspired by the gambling script made by Castorr91 for the Streamlabs Chatbot.
     - `%amount`: the amount of points the user has won/lost with this gamble.
     - `%newTotal`: the new total amount of currency the user has after the
         gamble.
+    - `%min`: the minimum amount of points that users are allowed to gamble
+        (only ‘Message on Entry Too Few Points’).
 
 
 ## Usage
