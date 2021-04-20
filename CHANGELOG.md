@@ -1,9 +1,11 @@
 # Changelog
 
 ## Unreleased
+- …
+
+## v0.1.2
 - Add: parameter to define the percentage of points that should be added to the
   jackpot. Also enables disabling of the jackpot.
-- …
 
 ## v0.1.1
 - Add: message when user tries to enter fewer than minimum amount of points
