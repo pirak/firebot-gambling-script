@@ -11,6 +11,8 @@ import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { GambleEntry } from './model/gamble-entry';
 import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
 
+const scriptVersion = '0.1.1';
+
 export interface Params {
     currencyId: string;
     userCurrentPoints: string;
@@ -120,7 +122,7 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
             name: 'Firebot Gambling Script',
             description: 'A script that lets chat users gamble currency',
             author: 'pirak__',
-            version: '0.1.0',
+            version: scriptVersion,
             firebotVersion: '5',
         };
     }
