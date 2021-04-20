@@ -65,9 +65,13 @@ describe('The argument parser', () => {
 });
 
 describe('The handler', () => {
+    const params = defaultParams();
+    params.currentJackpotAmount = '1000';
+    params.userCurrentPoints = '10000';
+
     it('should ignore runRequests that are not commands', async () => {
         const runRequest = ({
-            parameters: {},
+            parameters: params,
             modules: { logger: mockLogger },
             trigger: {
                 type: 'manual',
@@ -80,7 +84,7 @@ describe('The handler', () => {
 
     it('should not crash on runRequests with no userCommand', async () => {
         const runRequest = ({
-            parameters: {},
+            parameters: params,
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -96,7 +100,7 @@ describe('The handler', () => {
 
     it('should ignore runRequests with no command arguments', async () => {
         const runRequest = ({
-            parameters: {},
+            parameters: params,
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -116,7 +120,7 @@ describe('The handler', () => {
 
     it('should ignore runRequests with more than one command arguments', async () => {
         const runRequest = ({
-            parameters: {},
+            parameters: params,
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -136,7 +140,7 @@ describe('The handler', () => {
 
     it('should ignore runRequests with one invalid argument', async () => {
         const runRequest = ({
-            parameters: {},
+            parameters: params,
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -154,11 +158,51 @@ describe('The handler', () => {
         expect(res.effects).toEqual([]);
     });
 
-    it('should return the result of the gamble handler if the argument is valid', async () => {
-        const params = defaultParams();
-        params.currentJackpotAmount = '1000';
-        params.userCurrentPoints = '10000';
+    it('should return a message if the user entered too few points', async () => {
+        const runRequest = ({
+            parameters: params,
+            modules: { logger: mockLogger },
+            trigger: {
+                type: 'command',
+                metadata: {
+                    username: 'pirak__',
+                    userCommand: {
+                        trigger: '!gamble',
+                        args: ['20'],
+                    },
+                },
+            },
+        } as unknown) as RunRequest<any>;
 
+        const expectedEffects = [
+            new ChatMessageEffect(defaultParams().messageEntryBelowMinimum.replace('%min', String(100))),
+        ];
+
+        const res = await customScript.run(runRequest);
+        expect(res.effects).toEqual(expectedEffects);
+    });
+
+    it('should do nothing if the user tried to enter more points than they have', async () => {
+        const runRequest = ({
+            parameters: params,
+            modules: { logger: mockLogger },
+            trigger: {
+                type: 'command',
+                metadata: {
+                    username: 'pirak__',
+                    userCommand: {
+                        trigger: '!gamble',
+                        args: ['20000'],
+                    },
+                },
+            },
+        } as unknown) as RunRequest<any>;
+
+        const res = await customScript.run(runRequest);
+        expect(res.effects).toEqual([]);
+    });
+
+    it('should return the result of the gamble handler if the argument is valid', async () => {
         const runRequest = ({
             parameters: params,
             modules: { logger: mockLogger },

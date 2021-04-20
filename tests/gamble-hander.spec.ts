@@ -63,7 +63,7 @@ describe('The Gambling Handler Message Replacer', () => {
 describe('The Gambling Handler Effect Creator', () => {
     const effectCreator = (params: Params, result: GambleResult) =>
         // @ts-ignore
-        GambleHandler.gambleResultEffects(params, 'pirak__', result);
+        gambleHandler.gambleResultEffects(params, 'pirak__', result);
 
     it('should for neutral results only create a chat message', async () => {
         const result = new GambleResult(GambleResultType.Neutral, 50);
@@ -106,18 +106,6 @@ describe('The Gambling Handler Effect Creator', () => {
 });
 
 describe('The Gambling Handler', () => {
-    it('should not allow entries smaller than the minimum', async () => {
-        const entry = new GambleEntry('pirak__', 10000, 99);
-
-        expect(gambleHandler.handle(params, entry)).toEqual([]);
-    });
-
-    it('should not allow entries with more points than the user has', async () => {
-        const entry = new GambleEntry('pirak__', 10000, 12000);
-
-        expect(gambleHandler.handle(params, entry)).toEqual([]);
-    });
-
     it('should for neutral results only create a chat message', async () => {
         const entry = new GambleEntry('pirak__', 10000, 1000);
         mockExpectedRoll(50);

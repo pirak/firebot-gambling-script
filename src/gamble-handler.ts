@@ -26,13 +26,9 @@ export class GambleHandler {
     }
 
     handle(params: Params, entry: GambleEntry): Effect[] {
-        if (entry.userPointsEntered > entry.userTotalPoints || entry.userPointsEntered < this.minimumEntry) {
-            return [];
-        }
-
         const gambleResult = this.gamblingMode.winnings(entry.userPointsEntered);
         this.logger.info(`${gambleResult}`);
-        return GambleHandler.gambleResultEffects(params, entry.user, gambleResult);
+        return this.gambleResultEffects(params, entry.user, gambleResult);
     }
 
     /**
@@ -42,18 +38,18 @@ export class GambleHandler {
      * @param result the gamble result.
      * @private
      */
-    private static gambleResultEffects(params: Params, username: string, result: GambleResult): Effect[] {
+    private gambleResultEffects(params: Params, username: string, result: GambleResult): Effect[] {
         const effects: Effect[] = [];
 
         if (result.type === GambleResultType.Won) {
             const pointsAdd = new CurrencyEffect(params.currencyId, CurrencyAction.Add, username, result.amount);
             effects.push(pointsAdd);
 
-            const message = this.replaceMessagePlaceholders(params, result, params.messageWon);
+            const message = GambleHandler.replaceMessagePlaceholders(params, result, params.messageWon);
             effects.push(new ChatMessageEffect(message));
         } else if (result.type === GambleResultType.Neutral) {
             // no need to give user points or update jackpot, just print result to chat
-            const message = this.replaceMessagePlaceholders(params, result, params.messageWon);
+            const message = GambleHandler.replaceMessagePlaceholders(params, result, params.messageWon);
             effects.push(new ChatMessageEffect(message));
         } else if (result.type === GambleResultType.Lost) {
             const pointsRemove = new CurrencyEffect(params.currencyId, CurrencyAction.Remove, username, result.amount);
@@ -66,7 +62,7 @@ export class GambleHandler {
             );
             effects.push(resetJackpot);
 
-            const message = this.replaceMessagePlaceholders(params, result, params.messageLost);
+            const message = GambleHandler.replaceMessagePlaceholders(params, result, params.messageLost);
             effects.push(new ChatMessageEffect(message));
         } else if (result.type === GambleResultType.Jackpot) {
             const pointsAdd = new CurrencyEffect(
@@ -80,10 +76,10 @@ export class GambleHandler {
             const resetJackpot = new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Set, 0);
             effects.push(resetJackpot);
 
-            const message = this.replaceMessagePlaceholders(params, result, params.messageJackpotWon);
+            const message = GambleHandler.replaceMessagePlaceholders(params, result, params.messageJackpotWon);
             effects.push(new ChatMessageEffect(message));
         } else {
-            throw new Error('Unknown GambleResultType');
+            this.logger.error('Unknown GambleResultType. Expected one of: Won, Lost, Neutral, or Jackpot.');
         }
 
         return effects;

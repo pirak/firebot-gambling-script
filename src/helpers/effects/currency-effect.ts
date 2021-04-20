@@ -18,7 +18,7 @@ export enum CurrencyEffectTarget {
  * currently not implemented.
  */
 export class CurrencyEffect implements Effect {
-    type: KnownEffectType = 'firebot:currency';
+    readonly type: KnownEffectType = 'firebot:currency';
 
     readonly currency: string;
     readonly action: CurrencyAction;

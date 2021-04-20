@@ -9,6 +9,7 @@ import {
 import { GambleHandler } from './gamble-handler';
 import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { GambleEntry } from './model/gamble-entry';
+import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
 
 export interface Params {
     currencyId: string;
@@ -20,6 +21,8 @@ export interface Params {
     messageJackpotWon: string;
     messageWon: string;
     messageLost: string;
+
+    messageEntryBelowMinimum: string;
 }
 
 /**
@@ -39,10 +42,7 @@ export function defaultParams(): Params {
         messageLost: 'Rolled %roll. $user lost %amount points and now has a total of %newTotal.',
         messageWon: 'Rolled %roll. $user won %amount points and now has a total of %newTotal.',
 
-        // ToDo:
-        //  - query jackpot
-        //  - message not enough points
-        //  - message too little points entered
+        messageEntryBelowMinimum: '@$user You cannot gamble fewer than %min points.',
     };
 }
 
@@ -104,6 +104,13 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
                 description: 'Message Won',
                 secondaryDescription: 'The message sent in chat when a user wins points.',
             },
+            messageEntryBelowMinimum: {
+                type: 'string',
+                default: params.messageEntryBelowMinimum,
+                description: 'Message on Entry Too Few Points',
+                secondaryDescription:
+                    'The message sent in chat when a user tries to enter with less than minimum points.',
+            },
         };
     }
 
@@ -159,6 +166,17 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
         if (userEnteredPoints === undefined) {
             logger.info(`Invalid format of argument to gambling command: ${commandArgs[0]}`);
             return [];
+        }
+
+        if (userEnteredPoints > Number(runRequest.parameters.userCurrentPoints)) {
+            return [];
+        } else if (userEnteredPoints < runRequest.parameters.minimumEntry) {
+            logger.debug(runRequest.parameters.messageEntryBelowMinimum);
+            const message = runRequest.parameters.messageEntryBelowMinimum.replace(
+                '%min',
+                String(runRequest.parameters.minimumEntry),
+            );
+            return [new ChatMessageEffect(message)];
         }
 
         const gambleEntry = new GambleEntry(username, userTotalPoints, userEnteredPoints!);
