@@ -5,6 +5,9 @@ Inspired by the gambling script made by Castorr91 for the Streamlabs Chatbot.
 
 ## Setup
 
+The latest version of this script can be downloaded on the
+[Releases page][releases] in the right sidebar.
+
 1. Enable custom script effects in the advanced settings of Firebot.
 
 2. Create a counter that is used to store the jackpot.
@@ -15,12 +18,15 @@ Inspired by the gambling script made by Castorr91 for the Streamlabs Chatbot.
     - `currency/currency.json`
 
     In the file `counters/counter.json` find the counter you created in step 2.
-    Copy the `id` of that counter as highlighted below.
-    Make sure to copy the `id` of the right counter, as the script will
-    overwrite any value stored in it.
-
     Repeat the same for the `id` of your currency stored in
    `currency/currency.json`.
+
+    Keep the files open or copy the `id` of that counter as highlighted below
+    into a temporary file.
+    Make sure to copy the `id` of the right counter, as the script will
+    overwrite any value stored in it.
+    Those `id`s are needed later when setting up the command as parameters to
+    the script.
 
     ![counter.json](setup_images/counter_id.png "counter.json")
 
@@ -34,7 +40,8 @@ Inspired by the gambling script made by Castorr91 for the Streamlabs Chatbot.
     ![Command Setup Jackpot](setup_images/command_setup_jackpot.png)
 
 6. Use the fallback command to execute the custom script effect.
-    You have to copy the`gamblingScript.js` into the correct folder.
+    When creating that effect Firebot has a link that opens the folder you can
+    copy `gamblingScript.js` (not the zip-file) into.
 
     ![Command Setup Script](setup_images/command_setup_script.png)
 
@@ -58,12 +65,12 @@ Inspired by the gambling script made by Castorr91 for the Streamlabs Chatbot.
 
 ## Usage
 
-As a user, you have various options to enter the gambling.
+You have various options to enter the gambling as a user in chat.
 The `!gamble` command only works with exactly one argument in one of the
 following formats:
-- `all`: put all your points into the pool,
-- `x%`: put only `x` percent of your points into the pool,
-- `x`: put exactly `x` of your points into the pool.
+- `all`: gamble all your current points,
+- `x%`: gamble only `x` percent of your total points,
+- `x`: gamble exactly `x` of your points.
 
 
 
