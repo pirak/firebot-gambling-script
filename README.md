@@ -63,9 +63,40 @@ The latest version of this script can be downloaded on the
         (only ‘Message on Entry Too Few Points’).
 
 
+
+## Modes
+
+For the examples the user has 1000 currency and gambles 100 of those.
+The jackpot contains 500 points.
+
+The ‘Jackpot Percent’ parameter defines how many of the lost points go into
+the jackpot.
+E.g. for a value of 50: if a user loses 80 points when gambling,
+50% ⋅ 80 = 40 of those are added to the jackpot.
+By setting the percentage to 0 or less the jackpot can be disabled.
+
+
+### Percentage
+
+The script generates a random number between 0 and 100 (inclusive).
+When a 0 is rolled, the user loses all their gambled points, they now have got
+900 currency.
+When a 50 is rolled, the user neither wins nor loses any points.
+When a 100 is rolled, and the jackpot is active, the user wins the whole jackpot
+and then have got 1500 points.
+If not, the user wins as many points as they gambled, then having 1100.
+
+Between those values the wins/losses are calculated on a linear scale.
+E.g. for a roll of 51 they win 2 points, for 52 they win 4 points, …,
+for a roll of 99 they win 98 points.
+It works the same way in the losing direction.
+For a roll of 49 they lose 2 points, 48 results in 4 points lost, and so on.
+
+
+
 ## Usage
 
-You have various options to enter the gambling as a user in chat.
+You have various options gamble as a user in chat.
 The `!gamble` command only works with exactly one argument in one of the
 following formats:
 - `all`: gamble all your current points,
