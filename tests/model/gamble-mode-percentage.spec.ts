@@ -11,6 +11,12 @@ describe('The Gambling Mode', () => {
         expect(gamblingMode.winnings(200)).toEqual(expected);
     });
 
+    it('should return the entered amount when 100 was rolled with disabled jackpot', async () => {
+        mockExpectedRoll(100);
+        const expected = new GambleResult(GambleResultType.Won, 100, 200);
+        expect(gamblingMode.winnings(200, false)).toEqual(expected);
+    });
+
     it('should return a neutral result when 50 was rolled', async () => {
         mockExpectedRoll(50);
         const expected = new GambleResult(GambleResultType.Neutral, 50, 0);

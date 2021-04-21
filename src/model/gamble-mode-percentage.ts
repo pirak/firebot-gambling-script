@@ -14,15 +14,14 @@ export class GambleModePercentage implements GambleMode {
      * - Roll 0:   `gamblingAmount` is lost.
      *
      * @param gamblingAmount the amount the user entered into the bet.
-     * @param jackpotEnabled unused.
+     * @param jackpotEnabled if disabled, the user wins gamblingAmount.
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     winnings(gamblingAmount: number, jackpotEnabled: boolean = true): GambleResult {
         const roll = GambleModePercentage.randIntInclusive(this.maxRoll);
 
         if (roll === this.neutralValue) {
             return new GambleResult(GambleResultType.Neutral, this.neutralValue);
-        } else if (roll === 100) {
+        } else if (roll === 100 && jackpotEnabled) {
             return new GambleResult(GambleResultType.Jackpot, this.maxRoll);
         } else if (roll === 0) {
             return new GambleResult(GambleResultType.Lost, 0, gamblingAmount);
