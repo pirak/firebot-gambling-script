@@ -3,6 +3,9 @@
 ## Unreleased
 - …
 
+## v0.1.3
+- Fix: percentage mode ignoring disabled jackpot setting
+
 ## v0.1.2
 - Add: parameter to define the percentage of points that should be added to the
   jackpot. Also enables disabling of the jackpot.

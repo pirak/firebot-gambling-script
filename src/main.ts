@@ -11,7 +11,7 @@ import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { GambleEntry } from './model/gamble-entry';
 import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
 
-const scriptVersion = '0.1.2';
+const scriptVersion = '0.1.3';
 
 export interface Params {
     currencyId: string;
