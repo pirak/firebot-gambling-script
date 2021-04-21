@@ -2,7 +2,7 @@ import { GambleModePercentage } from '../../src/model/gamble-mode-percentage';
 import { GambleResult, GambleResultType } from '../../src/model/gamble-result';
 import { mockExpectedRoll } from '../helpers';
 
-describe('The Gambling Mode', () => {
+describe('The Gambling Mode Percentage', () => {
     const gamblingMode = new GambleModePercentage();
 
     it('should return the jackpot when 100 was rolled', async () => {
