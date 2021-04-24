@@ -1,5 +1,10 @@
-import { EffectCategory, Firebot, RunRequest, Trigger } from 'firebot-custom-scripts-types';
+import { Effect, EffectCategory, Firebot, LeveledLogMethod, RunRequest, Trigger } from 'firebot-custom-scripts-types';
 import { ScriptParams } from './main';
+import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
+import { GambleEntry } from './model/gamble-entry';
+import { GambleHandler } from './gamble-handler';
+import { GambleModePercentage } from './model/gamble-mode-percentage';
+import { run } from 'jest';
 
 export interface Params {
     currencyId: string;
@@ -14,6 +19,13 @@ export interface Params {
     messageLost: string;
 
     messageEntryBelowMinimum: string;
+}
+
+interface Logger {
+    debug: LeveledLogMethod;
+    info: LeveledLogMethod;
+    warn: LeveledLogMethod;
+    error: LeveledLogMethod;
 }
 
 /**
@@ -59,8 +71,6 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
             categories: ['fun', 'chat based'] as EffectCategory[],
             triggers: {
                 command: true,
-                // eslint-disable-next-line camelcase
-                startup_script: true,
             },
             dependencies: [],
         },
@@ -83,9 +93,21 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <span class="counter-name">{{effect.jackpotCounterId ? getCounterName(effect.jackpotCounterId) : 'Pick one'}}</span> <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu currency-name-dropdown">
+                <ul class="dropdown-menu counter-name-dropdown">
                   <li ng-repeat="counter in counters" ng-click="effect.jackpotCounterId = counter.id">
                     <a href>{{getCounterName(counter.id)}}</a>
+                  </li>
+                </ul>
+              </div>
+            </eos-container>
+            <eos-container header="Gamble Mode">
+              <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <span class="gamble-mode">{{effect.mode ? effect.mode : 'Pick one'}}</span> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu mode-name-dropdown">
+                  <li ng-repeat="mode in modes" ng-click="effect.mode = mode">
+                    <a href>{{mode}}</a>
                   </li>
                 </ul>
               </div>
@@ -95,6 +117,7 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
         optionsController: ($scope: Scope, backendCommunicator: any, $q: any, currencyService: any) => {
             $scope.counters = [];
             $scope.currencies = [];
+            $scope.modes = ['Percentage Linear', 'Threshold'];
 
             $scope.loadCounters = () => {
                 $q.when(backendCommunicator.fireEventAsync('get-counters')).then((counters: Counter[]) => {
@@ -142,54 +165,75 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
 
         onTriggerEvent: async (event: { effect: Params; trigger: Trigger }) => {
             runRequest.modules.logger.info('Counter ID: ' + event.effect.jackpotCounterId);
-            return true;
+
+            event.effect.currentJackpotAmount = '200';
+            event.effect.userCurrentPoints = '2000';
+            event.effect.minimumEntry = 100;
+            event.effect.jackpotPercent = 100;
+            event.effect.messageEntryBelowMinimum = defaultParams().messageEntryBelowMinimum;
+            event.effect.messageJackpotWon = defaultParams().messageJackpotWon;
+            event.effect.messageLost = defaultParams().messageLost;
+            event.effect.messageWon = defaultParams().messageWon;
+
+            const gambleHandler = new GambleHandler(new GambleModePercentage(), runRequest.modules.logger, 0, 100);
+            const effects = handle(runRequest.modules.logger, event, gambleHandler);
+
+            runRequest.modules.logger.info('' + effects);
+
+            // does not work, why?
+            return (runRequest.modules.frontendCommunicator as any)
+                .fireEventAsync('getAllEffectDefinitions', null)
+                .then((effectDefs: any) => {
+                    runRequest.modules.logger.info('Effect Definitions: ' + effectDefs);
+
+                    for (const effect of effects) {
+                        const effectDef = effectDefs.find(
+                            (e: { definition: { id: any } }) => e.definition.id === effect.id,
+                        );
+                        if (effectDef) {
+                            effectDef.onTriggerEvent({ effect: effect, trigger: event.trigger });
+                        }
+                    }
+                })
+                .then(() => true);
         },
     };
 
     return gambleEffect;
 }
 
-/*
-ToDo:
- - put those two functions in a class then stored in Scope
-function handle(runRequest: RunRequest<Params>): Effect[] {
-    const { logger } = runRequest.modules;
-
-    if (runRequest.trigger.type !== 'command') {
-        logger.debug('Trigger is not a command, ignoring...');
+function handle(logger: Logger, event: { effect: Params; trigger: Trigger }, gambleHandler: GambleHandler): Effect[] {
+    if (event.trigger.type !== 'command') {
+        logger.debug('Not triggered by a chat command, doing nothing.');
         return [];
     }
 
-    const commandArgs = runRequest.trigger.metadata.userCommand?.args;
+    const commandArgs = event.trigger.metadata.userCommand?.args;
     if (commandArgs === undefined || commandArgs.length === 0 || commandArgs.length > 1) {
         logger.info('Invalid number of arguments to gambling command.');
         return [];
     }
 
-    const username = runRequest.trigger.metadata.username;
-    const userTotalPoints = Number(runRequest.parameters.userCurrentPoints);
+    const username = event.trigger.metadata.username;
+    const userTotalPoints = Number(event.effect.userCurrentPoints);
 
-    const userEnteredPoints = GamblingScript.enteredPoints(userTotalPoints, commandArgs[0]);
+    const userEnteredPoints = enteredPoints(userTotalPoints, commandArgs[0]);
     if (userEnteredPoints === undefined) {
         logger.info(`Invalid format of argument to gambling command: ${commandArgs[0]}`);
         return [];
     }
 
-    if (userEnteredPoints > Number(runRequest.parameters.userCurrentPoints)) {
+    if (userEnteredPoints > Number(event.effect.userCurrentPoints)) {
         return [];
-    } else if (userEnteredPoints < runRequest.parameters.minimumEntry) {
-        logger.debug(runRequest.parameters.messageEntryBelowMinimum);
-        const message = runRequest.parameters.messageEntryBelowMinimum.replace(
-            '%min',
-            String(runRequest.parameters.minimumEntry),
-        );
+    } else if (userEnteredPoints < event.effect.minimumEntry) {
+        logger.debug(event.effect.messageEntryBelowMinimum);
+        const message = event.effect.messageEntryBelowMinimum.replace('%min', String(event.effect.minimumEntry));
         return [new ChatMessageEffect(message)];
     }
 
     const gambleEntry = new GambleEntry(username, userTotalPoints, userEnteredPoints!);
-    return this.gambleHandler!.handle(runRequest.parameters, gambleEntry);
+    return gambleHandler.handle(event.effect, gambleEntry);
 }
- */
 
 /**
  * Parse the amount of points a user gambles from the command argument.
@@ -197,7 +241,6 @@ function handle(runRequest: RunRequest<Params>): Effect[] {
  * @param commandArg the command argument.
  * @private
  */
-/*
 function enteredPoints(userTotalPoints: number, commandArg: string): number | undefined {
     if (commandArg === 'all') {
         return userTotalPoints;
@@ -211,4 +254,3 @@ function enteredPoints(userTotalPoints: number, commandArg: string): number | un
         }
     }
 }
-*/
