@@ -1,11 +1,11 @@
 import { GambleEntry } from './model/gamble-entry';
 import { Effect, LeveledLogMethod } from 'firebot-custom-scripts-types';
-import { Params } from './main';
 import { GambleMode } from './model/gamble-mode';
 import { GambleResult, GambleResultType } from './model/gamble-result';
 import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
 import { CurrencyEffect, CurrencyAction } from './helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from './helpers/effects/update-counter-effect';
+import { Params } from './gamble-effect';
 
 type Logger = {
     debug: LeveledLogMethod;
