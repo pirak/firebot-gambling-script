@@ -1,9 +1,10 @@
-import customScript, { defaultParams, GamblingScript } from '../src/main';
+import customScript, { defaultParams, GamblingScript, Params } from '../src/main';
 import { ArgumentsOf, replaceMessageParams, mockExpectedRoll } from './helpers';
 import { RunRequest, ScriptModules } from 'firebot-custom-scripts-types';
 import { CurrencyEffect, CurrencyAction } from '../src/helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
+import { Counter } from '../src/helpers/firebot-internals';
 
 const mockLogger = {
     info: jest.fn<void, ArgumentsOf<ScriptModules['logger']['info']>>(),
@@ -64,19 +65,71 @@ describe('The argument parser', () => {
     });
 });
 
-describe('The handler', () => {
-    const params = defaultParams();
-    params.currentJackpotAmount = '1000';
-    params.userCurrentPoints = '10000';
+const currencyId = '7b9ac050-a096-11eb-9ce3-69b33571b547';
+const jackpotId = '71dd1e86-178d-491d-8f61-9c5851faf8a8';
 
+function addManagersToRunRequest(
+    runRequest: RunRequest<Params>,
+    username: string = 'pirak__',
+    userPoints: number = 10000,
+    jackpotValue: number = 1000,
+): void {
+    // @ts-ignore
+    runRequest.modules.currencyDb = {
+        getCurrencies: () => {
+            return [
+                {
+                    id: currencyId,
+                    name: 'points',
+                },
+                {
+                    id: '8c0ac050-a096-11eb-9ce3-69b33571b547',
+                    name: 'coins',
+                },
+            ];
+        },
+        getUserCurrencyAmount: (name: string, id: string) => {
+            if (name === username && id === '7b9ac050-a096-11eb-9ce3-69b33571b547') {
+                return userPoints;
+            }
+            return 0;
+        },
+    };
+
+    const counter: Counter = {
+        id: jackpotId,
+        name: 'jackpot',
+        saveToTxtFile: false,
+        value: jackpotValue,
+    };
+
+    // @ts-ignore
+    runRequest.modules.counterManager = {
+        getCounterByName: (name: string) => {
+            if (name.toLowerCase() === counter.name) {
+                return counter;
+            }
+            return null;
+        },
+        getCounter: (id: string) => {
+            if (id === counter.id) {
+                return counter;
+            }
+            return null;
+        },
+    };
+}
+
+describe('The handler', () => {
     it('should ignore runRequests that are not commands', async () => {
         const runRequest = ({
-            parameters: params,
+            parameters: defaultParams(),
             modules: { logger: mockLogger },
             trigger: {
                 type: 'manual',
             },
         } as unknown) as RunRequest<any>;
+        addManagersToRunRequest(runRequest);
 
         const res = await customScript.run(runRequest);
         expect(res.effects).toEqual([]);
@@ -84,7 +137,7 @@ describe('The handler', () => {
 
     it('should not crash on runRequests with no userCommand', async () => {
         const runRequest = ({
-            parameters: params,
+            parameters: defaultParams(),
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -93,6 +146,7 @@ describe('The handler', () => {
                 },
             },
         } as unknown) as RunRequest<any>;
+        addManagersToRunRequest(runRequest);
 
         const res = await customScript.run(runRequest);
         expect(res.effects).toEqual([]);
@@ -100,7 +154,7 @@ describe('The handler', () => {
 
     it('should ignore runRequests with no command arguments', async () => {
         const runRequest = ({
-            parameters: params,
+            parameters: defaultParams(),
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -113,6 +167,7 @@ describe('The handler', () => {
                 },
             },
         } as unknown) as RunRequest<any>;
+        addManagersToRunRequest(runRequest);
 
         const res = await customScript.run(runRequest);
         expect(res.effects).toEqual([]);
@@ -120,7 +175,7 @@ describe('The handler', () => {
 
     it('should ignore runRequests with more than one command arguments', async () => {
         const runRequest = ({
-            parameters: params,
+            parameters: defaultParams(),
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -133,6 +188,7 @@ describe('The handler', () => {
                 },
             },
         } as unknown) as RunRequest<any>;
+        addManagersToRunRequest(runRequest);
 
         const res = await customScript.run(runRequest);
         expect(res.effects).toEqual([]);
@@ -140,7 +196,7 @@ describe('The handler', () => {
 
     it('should ignore runRequests with one invalid argument', async () => {
         const runRequest = ({
-            parameters: params,
+            parameters: defaultParams(),
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -153,6 +209,7 @@ describe('The handler', () => {
                 },
             },
         } as unknown) as RunRequest<any>;
+        addManagersToRunRequest(runRequest);
 
         const res = await customScript.run(runRequest);
         expect(res.effects).toEqual([]);
@@ -160,7 +217,7 @@ describe('The handler', () => {
 
     it('should return a message if the user entered too few points', async () => {
         const runRequest = ({
-            parameters: params,
+            parameters: defaultParams(),
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -173,6 +230,7 @@ describe('The handler', () => {
                 },
             },
         } as unknown) as RunRequest<any>;
+        addManagersToRunRequest(runRequest);
 
         const expectedEffects = [
             new ChatMessageEffect(defaultParams().messageEntryBelowMinimum.replace('%min', String(100))),
@@ -184,7 +242,7 @@ describe('The handler', () => {
 
     it('should do nothing if the user tried to enter more points than they have', async () => {
         const runRequest = ({
-            parameters: params,
+            parameters: defaultParams(),
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -197,6 +255,7 @@ describe('The handler', () => {
                 },
             },
         } as unknown) as RunRequest<any>;
+        addManagersToRunRequest(runRequest);
 
         const res = await customScript.run(runRequest);
         expect(res.effects).toEqual([]);
@@ -204,7 +263,7 @@ describe('The handler', () => {
 
     it('should return the result of the gamble handler if the argument is valid', async () => {
         const runRequest = ({
-            parameters: params,
+            parameters: defaultParams(),
             modules: { logger: mockLogger },
             trigger: {
                 type: 'command',
@@ -217,11 +276,12 @@ describe('The handler', () => {
                 },
             },
         } as unknown) as RunRequest<any>;
+        addManagersToRunRequest(runRequest);
 
         mockExpectedRoll(100);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 1000),
-            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Set, 0),
+            new CurrencyEffect(currencyId, CurrencyAction.Add, 'pirak__', 1000),
+            new UpdateCounterEffect(jackpotId, UpdateCounterEffectMode.Set, 0),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
         ];
 

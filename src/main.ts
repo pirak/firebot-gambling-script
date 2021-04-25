@@ -10,14 +10,13 @@ import { GambleHandler } from './gamble-handler';
 import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { GambleEntry } from './model/gamble-entry';
 import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
+import { CounterAccess, CurrencyAccess } from './helpers/firebot-internals';
 
 const scriptVersion = '0.1.3';
 
 export interface Params {
-    currencyId: string;
-    userCurrentPoints: string;
-    jackpotCounterId: string;
-    currentJackpotAmount: string;
+    currency: string;
+    jackpotCounter: string;
     minimumEntry: number;
     jackpotPercent: number;
 
@@ -28,6 +27,11 @@ export interface Params {
     messageEntryBelowMinimum: string;
 }
 
+enum Result {
+    Ok,
+    Err,
+}
+
 /**
  * Default values for the parameters.
  * Placeholders starting with `$` are replaced by Firebot when calling the
@@ -35,12 +39,10 @@ export interface Params {
  */
 export function defaultParams(): Params {
     return {
-        currencyId: '7b9ac050-a096-11eb-9ce3-69b33571b547',
-        jackpotCounterId: '71dd1e86-178d-491d-8f61-9c5851faf8a8',
-        currentJackpotAmount: '$counter[jackpot]',
+        currency: 'Points',
+        jackpotCounter: 'Jackpot',
         minimumEntry: 100,
         jackpotPercent: 100,
-        userCurrentPoints: '$currency[points, $user]',
 
         messageJackpotWon: 'Rolled %roll. $user won the jackpot of %amount points and now has a total of %newTotal.',
         messageLost: 'Rolled %roll. $user lost %amount points and now has a total of %newTotal.',
@@ -57,33 +59,17 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
         const params = defaultParams();
 
         return {
-            currencyId: {
+            currency: {
                 type: 'string',
-                default: params.currencyId,
-                description: 'Internal ID of the Currency',
-                secondaryDescription:
-                    'The id of the currency that should be gambled. In Settings open the root folder. There is a folder "currency" with a file "currency.json". In there find the id of the currency that should be used for gambling.',
+                default: params.currency,
+                description: 'Name of the Currency',
+                secondaryDescription: 'The name of the currency that should be gambled.',
             },
-            jackpotCounterId: {
+            jackpotCounter: {
                 type: 'string',
-                default: params.jackpotCounterId,
-                description: 'Internal ID of the Jackpot Counter',
-                secondaryDescription:
-                    'Create a custom counter. In Settings open the root folder. There is a folder "counters" with the file "counters.json". In there find the counter with that name you used before and copy the value of "id" (Careful: not the ids of "maximum/minimumEffects"!).',
-            },
-            userCurrentPoints: {
-                type: 'string',
-                default: params.userCurrentPoints,
-                description: 'User Points',
-                secondaryDescription:
-                    'The current amount of currency the calling user has. Replace "points" with the name of your currency.',
-            },
-            currentJackpotAmount: {
-                type: 'string',
-                default: params.currentJackpotAmount,
-                description: 'Current Jackpot Amount',
-                secondaryDescription:
-                    'Replace "jackpot" with your name of the custom counter used to store the jackpot.',
+                default: params.jackpotCounter,
+                description: 'Name of the Jackpot Counter',
+                secondaryDescription: 'Create a custom counter where the current jackpot value should be stored.',
             },
             minimumEntry: {
                 type: 'number',
@@ -161,27 +147,22 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
     private handle(runRequest: RunRequest<Params>): Effect[] {
         const { logger } = runRequest.modules;
 
-        if (runRequest.trigger.type !== 'command') {
-            logger.debug('Trigger is not a command, ignoring...');
+        if (GamblingScript.validateParams(runRequest) === Result.Err) {
             return [];
         }
 
         const commandArgs = runRequest.trigger.metadata.userCommand?.args;
-        if (commandArgs === undefined || commandArgs.length === 0 || commandArgs.length > 1) {
-            logger.info('Invalid number of arguments to gambling command.');
-            return [];
-        }
-
         const username = runRequest.trigger.metadata.username;
-        const userTotalPoints = Number(runRequest.parameters.userCurrentPoints);
+        const currency = runRequest.parameters.currency;
+        const userTotalPoints = CurrencyAccess.getUserCurrency(runRequest, username, currency)!;
 
-        const userEnteredPoints = GamblingScript.enteredPoints(userTotalPoints, commandArgs[0]);
+        const userEnteredPoints = GamblingScript.enteredPoints(userTotalPoints, commandArgs![0]);
         if (userEnteredPoints === undefined) {
-            logger.info(`Invalid format of argument to gambling command: ${commandArgs[0]}`);
+            logger.info(`Invalid format of argument to gambling command: ${commandArgs![0]}`);
             return [];
         }
 
-        if (userEnteredPoints > Number(runRequest.parameters.userCurrentPoints)) {
+        if (userEnteredPoints > userTotalPoints) {
             return [];
         } else if (userEnteredPoints < runRequest.parameters.minimumEntry) {
             logger.debug(runRequest.parameters.messageEntryBelowMinimum);
@@ -193,7 +174,40 @@ export class GamblingScript implements Firebot.CustomScript<Params> {
         }
 
         const gambleEntry = new GambleEntry(username, userTotalPoints, userEnteredPoints!);
-        return this.gambleHandler!.handle(runRequest.parameters, gambleEntry);
+        const jackpotValue = CounterAccess.getCounterById(runRequest, runRequest.parameters.jackpotCounter)!.value;
+
+        return this.gambleHandler!.handle(runRequest.parameters, gambleEntry, jackpotValue);
+    }
+
+    private static validateParams(runRequest: RunRequest<Params>): Result {
+        const { logger } = runRequest.modules;
+
+        if (runRequest.trigger.type !== 'command') {
+            logger.debug('Trigger is not a command, ignoring...');
+            return Result.Err;
+        }
+
+        const commandArgs = runRequest.trigger.metadata.userCommand?.args;
+        if (commandArgs === undefined || commandArgs.length === 0 || commandArgs.length > 1) {
+            logger.info('Invalid number of arguments to gambling command.');
+            return Result.Err;
+        }
+
+        const currency = CurrencyAccess.getCurrencyByName(runRequest, runRequest.parameters.currency);
+        if (!currency) {
+            logger.error('Currency with name ' + runRequest.parameters.currency + ' could not be found!');
+            return Result.Err;
+        }
+        runRequest.parameters.currency = currency.id;
+
+        const jackpot = CounterAccess.getCounterByName(runRequest, runRequest.parameters.jackpotCounter.toLowerCase());
+        if (!jackpot) {
+            logger.error('Counter with name ' + runRequest.parameters.jackpotCounter + ' could not be found!');
+            return Result.Err;
+        }
+        runRequest.parameters.jackpotCounter = jackpot.id;
+
+        return Result.Ok;
     }
 
     /**

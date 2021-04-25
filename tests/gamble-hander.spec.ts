@@ -17,13 +17,11 @@ const mockLogger = {
 };
 
 const params = defaultParams();
-params.currentJackpotAmount = '1000';
-params.userCurrentPoints = '10000';
 
 describe('The Gambling Handler Message Replacer', () => {
     const messageReplacer = (params: Params, gambleResult: GambleResult, message: string) =>
         // @ts-ignore
-        GambleHandler.replaceMessagePlaceholders(params, gambleResult, message);
+        GambleHandler.replaceMessagePlaceholders(message, params, gambleResult, 10000, 1000);
 
     it('should replace roll, amount, and newTotal in a neutral message', async () => {
         const result = new GambleResult(GambleResultType.Neutral, 50, 0);
@@ -60,48 +58,49 @@ describe('The Gambling Handler Message Replacer', () => {
 
 describe('The Gambling Handler Effect Creator', () => {
     const gambleHandler = new GambleHandler(new GambleModePercentage(), mockLogger, 100, 100);
+    const gambleEntry = new GambleEntry('pirak__', 10000, 1000);
 
-    const effectCreator = (params: Params, result: GambleResult) =>
+    const effectCreator = (params: Params, entry: GambleEntry, result: GambleResult) =>
         // @ts-ignore
-        gambleHandler.gambleResultEffects(params, 'pirak__', result);
+        gambleHandler.gambleResultEffects(params, entry, result, 1000);
 
     it('should for neutral results only create a chat message', async () => {
         const result = new GambleResult(GambleResultType.Neutral, 50);
         const expectedEffects = [new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 50, 0, 10000))];
 
-        expect(effectCreator(params, result)).toEqual(expectedEffects);
+        expect(effectCreator(params, gambleEntry, result)).toEqual(expectedEffects);
     });
 
     it('should for winning results add points to the user and create a chat message', async () => {
         const result = new GambleResult(GambleResultType.Won, 52, 120);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 120),
+            new CurrencyEffect(defaultParams().currency, CurrencyAction.Add, 'pirak__', 120),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 52, 120, 10120)),
         ];
 
-        expect(effectCreator(params, result)).toEqual(expectedEffects);
+        expect(effectCreator(params, gambleEntry, result)).toEqual(expectedEffects);
     });
 
     it('should for losing results add points to the user, add points to the jackpot and create a chat message', async () => {
         const result = new GambleResult(GambleResultType.Lost, 48, 120);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 120),
-            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 120),
+            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 120),
+            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Increment, 120),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 48, 120, 10000 - 120)),
         ];
 
-        expect(effectCreator(params, result)).toEqual(expectedEffects);
+        expect(effectCreator(params, gambleEntry, result)).toEqual(expectedEffects);
     });
 
     it('should for jackpot results add points to the user, reset the jackpot and create a chat message', async () => {
         const result = new GambleResult(GambleResultType.Jackpot, 100);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 1000),
-            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Set, 0),
+            new CurrencyEffect(defaultParams().currency, CurrencyAction.Add, 'pirak__', 1000),
+            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Set, 0),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
         ];
 
-        expect(effectCreator(params, result)).toEqual(expectedEffects);
+        expect(effectCreator(params, gambleEntry, result)).toEqual(expectedEffects);
     });
 });
 
@@ -113,42 +112,42 @@ describe('The Gambling Handler', () => {
         mockExpectedRoll(50);
         const expectedEffects = [new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 50, 0, 10000))];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
     });
 
     it('should for winning results add points to the user and create a chat message', async () => {
         const entry = new GambleEntry('pirak__', 10000, 1000);
         mockExpectedRoll(52);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 40),
+            new CurrencyEffect(defaultParams().currency, CurrencyAction.Add, 'pirak__', 40),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 52, 40, 10040)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
     });
 
     it('should for losing results add points to the user, add points to the jackpot and create a chat message', async () => {
         const entry = new GambleEntry('pirak__', 10000, 1000);
         mockExpectedRoll(48);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 40),
-            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 40),
+            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 40),
+            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Increment, 40),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 48, 40, 10000 - 40)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
     });
 
     it('should for jackpot results add points to the user, reset the jackpot and create a chat message', async () => {
         const entry = new GambleEntry('pirak__', 10000, 1000);
         mockExpectedRoll(100);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 1000),
-            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Set, 0),
+            new CurrencyEffect(defaultParams().currency, CurrencyAction.Add, 'pirak__', 1000),
+            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Set, 0),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
     });
 
     it('should disable the jackpot for jackpotPercents <= 0', async () => {
@@ -161,16 +160,16 @@ describe('The Gambling Handler', () => {
         const gambleHandler = new GambleHandler(mode, mockLogger, 100, 0);
 
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 120),
+            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 120),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 120, 10000 - 120)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
         expect(mockFn).toHaveBeenCalledWith(1000, false);
 
         // jackpotPercent -1 should be used as 0
         const gambleHandler2 = new GambleHandler(mode, mockLogger, 100, -1);
-        expect(gambleHandler2.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler2.handle(params, entry, 1000)).toEqual(expectedEffects);
         expect(mockFn).toHaveBeenCalledWith(1000, false);
     });
 
@@ -184,12 +183,12 @@ describe('The Gambling Handler', () => {
         const gambleHandler = new GambleHandler(mode, mockLogger, 100, 50);
 
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 120),
-            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 60),
+            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 120),
+            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Increment, 60),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 120, 10000 - 120)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
         expect(mockFn).toHaveBeenCalledWith(1000, true);
     });
 
@@ -203,12 +202,12 @@ describe('The Gambling Handler', () => {
         const gambleHandler = new GambleHandler(mode, mockLogger, 100, 50);
 
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 49),
-            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 24),
+            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 49),
+            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Increment, 24),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 49, 10000 - 49)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
         expect(mockFn).toHaveBeenCalledWith(1000, true);
     });
 });
