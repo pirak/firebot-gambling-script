@@ -1,0 +1,295 @@
+import { buildGambleEffect, defaultParams, handle, Params } from '../src/gamble-effect';
+import { RunRequest, Trigger } from 'firebot-custom-scripts-types';
+import { ScriptParams } from '../src/main';
+import { Counter } from '../src/helpers/firebot-internals';
+import { run } from 'jest';
+import { GambleHandler } from '../src/gamble-handler';
+import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
+import { Logger } from 'firebot-custom-scripts-types/modules/logger';
+import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
+import { mockExpectedRoll, replaceMessageParams } from './helpers';
+import { CurrencyAction, CurrencyEffect } from '../src/helpers/effects/currency-effect';
+import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
+
+const currencyId = '7b9ac050-a096-11eb-9ce3-69b33571b547';
+const jackpotId = '71dd1e86-178d-491d-8f61-9c5851faf8a8';
+
+function addManagersToRunRequest(
+    runRequest: RunRequest<ScriptParams>,
+    username: string = 'pirak__',
+    userPoints: number = 10000,
+    jackpotValue: number = 1000,
+): void {
+    // @ts-ignore
+    runRequest.modules.logger = {
+        info: (msg: string) => {
+        },
+        warn: (msg: string) => {
+        },
+        debug: (msg: string) => {
+        },
+        error: (msg: string) => {
+        },
+    };
+
+    // @ts-ignore
+    runRequest.modules.currencyDb = {
+        getCurrencies: () => {
+            return [
+                {
+                    id: currencyId,
+                    name: 'points',
+                },
+                {
+                    id: '8c0ac050-a096-11eb-9ce3-69b33571b547',
+                    name: 'coins',
+                },
+            ];
+        },
+        getUserCurrencyAmount: (name: string, id: string) => {
+            if (name === username && id === '7b9ac050-a096-11eb-9ce3-69b33571b547') {
+                return userPoints;
+            }
+            return 0;
+        },
+    };
+
+    const counter: Counter = {
+        id: jackpotId,
+        name: 'jackpot',
+        saveToTxtFile: false,
+        value: jackpotValue,
+    };
+
+    // @ts-ignore
+    runRequest.modules.counterManager = {
+        getCounterByName: (name: string) => {
+            if (name.toLowerCase() === counter.name) {
+                return counter;
+            }
+            return null;
+        },
+        getCounter: (id: string) => {
+            if (id === counter.id) {
+                return counter;
+            }
+            return null;
+        },
+    };
+
+    // @ts-ignore
+    runRequest.modules.currencyDb = {
+        adjustCurrencyForUser: (username: string, id: string, amount: number, action: string) => {},
+        getUserCurrencyAmount: (username: string, id: string) => {
+            return 10000;
+        },
+    };
+
+    // @ts-ignore
+    runRequest.modules.counterManager = {
+        updateCounterValue: (counterId: string, value: number, override: boolean) => {},
+        getCounter: (id: string) => {
+            return {
+                id: jackpotId,
+                name: 'Jackpot',
+                value: 1000,
+            };
+        },
+    };
+
+    // @ts-ignore
+    runRequest.modules.twitchChat = {
+        sendChatMessage(message: string, whisperTarget?: string, accountType?: 'bot' | 'streamer') {},
+    };
+}
+
+function runRequestBuilder(): RunRequest<ScriptParams> {
+    const params = {};
+
+    const runRequest = {
+        parameters: params,
+        modules: {},
+        firebot: {},
+        trigger: {
+            type: 'command',
+        },
+    };
+    // @ts-ignore
+    addManagersToRunRequest(runRequest);
+
+    // @ts-ignore
+    return runRequest;
+}
+
+function effectTriggerBuilder(username: string, args: string[]): { effect: Params; trigger: Trigger } {
+    const params = defaultParams();
+    return {
+        effect: params,
+        trigger: {
+            type: 'command',
+            metadata: {
+                username: username,
+                userCommand: {
+                    trigger: '!gamble',
+                    args: args,
+                },
+            },
+        },
+    };
+}
+
+function gambleHandlerBuilder(logger: Logger) {
+    return new GambleHandler(new GambleModePercentage(), logger, 100, 100);
+}
+
+describe('The Gamble Effect Handler', () => {
+    it('should ignore runRequests that are not commands', async () => {
+        const runRequest = runRequestBuilder();
+        const gambleEffect = buildGambleEffect(runRequest);
+        const trigger = effectTriggerBuilder('pirak__', []);
+        trigger.trigger.type = 'manual';
+        const debugMock = jest.spyOn(runRequest.modules.logger, 'debug');
+
+        await gambleEffect.onTriggerEvent(trigger);
+        expect(debugMock).toHaveBeenCalledWith('Trigger is not a command, ignoring...');
+    });
+
+    it('should not crash on runRequests with no userCommand', async () => {
+        const runRequest = runRequestBuilder();
+        const gambleEffect = buildGambleEffect(runRequest);
+        const trigger = effectTriggerBuilder('pirak__', []);
+        trigger.trigger.metadata.userCommand = undefined;
+
+        await gambleEffect.onTriggerEvent(trigger);
+    });
+
+    it('should ignore runRequests with no command arguments', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', []);
+
+        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        expect(effects).toEqual([]);
+    });
+
+    it('should ignore runRequests with more than one command arguments', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', ['all', '123']);
+
+        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        expect(effects).toEqual([]);
+    });
+
+    it('should ignore runRequests with one invalid argument', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', ['all', '123']);
+
+        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        expect(effects).toEqual([]);
+    });
+
+    it('should return a message if the user entered too few points', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', ['20']);
+
+        const expectedEffects = [
+            new ChatMessageEffect(defaultParams().messageEntryBelowMinimum.replace('%min', String(100))),
+        ];
+
+        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        expect(effects).toEqual(expectedEffects);
+    });
+
+    it('should do nothing if the user tried to enter more points than they have', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', ['20000']);
+
+        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        expect(effects).toEqual([]);
+    });
+
+    it('should return the result of the gamble handler if the argument is valid', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', ['20%']);
+
+        mockExpectedRoll(100);
+        const expectedEffects = [
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 1000),
+            new UpdateCounterEffect(event.effect.jackpotCounterId, UpdateCounterEffectMode.Set, 0),
+            new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
+        ];
+
+        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        expect(effects).toEqual(expectedEffects);
+    });
+});
+
+describe('The Gamble Effect', () => {
+    it('should execute the effects on a valid gamble', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', ['20%']);
+
+        mockExpectedRoll(100);
+        const expectedEffects = [
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 1000),
+            new UpdateCounterEffect(event.effect.jackpotCounterId, UpdateCounterEffectMode.Set, 0),
+            new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
+        ];
+
+        // @ts-ignore
+        const adjustCurrencyMock = jest.spyOn(runRequest.modules.currencyDb, 'adjustCurrencyForUser');
+        // @ts-ignore
+        const updateCounterMock = jest.spyOn(runRequest.modules.counterManager, 'updateCounterValue');
+        const chatMessageMock = jest.spyOn(runRequest.modules.twitchChat, 'sendChatMessage');
+
+        await buildGambleEffect(runRequest).onTriggerEvent(event);
+        expect(adjustCurrencyMock).toHaveBeenCalledWith('pirak__', currencyId, 1000, 'adjust');
+        expect(updateCounterMock).toHaveBeenCalledWith(jackpotId, 0, true);
+        expect(chatMessageMock).toHaveBeenCalledWith(
+            'Rolled 100. $user won the jackpot of 1000 points and now has a total of 11000.',
+            undefined,
+            'bot',
+        );
+    });
+});
+
+describe('The argument parser', () => {
+    const parser = (totalPoints: number, arg: string) =>
+        require('../src/gamble-effect').enteredPoints(totalPoints, arg);
+
+    it('should parse all into the user’s total points', async () => {
+        expect(parser(1000, 'all')).toEqual(1000);
+    });
+
+    it('should parse single digit percents', async () => {
+        expect(parser(1000, '1%')).toEqual(10);
+        expect(parser(1000, '8%')).toEqual(80);
+    });
+
+    it('should parse double digit percents', async () => {
+        expect(parser(1000, '12%')).toEqual(120);
+        expect(parser(1000, '99%')).toEqual(990);
+    });
+
+    it('should parse triple digit percents', async () => {
+        expect(parser(1000, '100%')).toEqual(1000);
+        expect(parser(1000, '101%')).toBeUndefined();
+        expect(parser(1000, '233%')).toBeUndefined();
+    });
+
+    it('should parse regular numbers', async () => {
+        expect(parser(1000, '1')).toEqual(1);
+        expect(parser(1000, '12')).toEqual(12);
+        expect(parser(1000, '100')).toEqual(100);
+        expect(parser(1000, '233')).toEqual(233);
+        expect(parser(1000, '10000')).toEqual(10000);
+    });
+
+    it('should not parse negative numbers', async () => {
+        expect(parser(1000, '-1')).toBeUndefined();
+        expect(parser(1000, '-100')).toBeUndefined();
+    });
+
+    it('should not parse zero', async () => {
+        expect(parser(1000, '0')).toBeUndefined();
+    });
+});

@@ -1,4 +1,6 @@
-import { Effect, Firebot } from 'firebot-custom-scripts-types';
+import { Effect, Firebot, RunRequest } from 'firebot-custom-scripts-types';
+import { CustomEffect } from './custom-effect';
+import { ScriptParams } from '../../main';
 import KnownEffectType = Firebot.KnownEffectType;
 
 export enum UpdateCounterEffectMode {
@@ -6,7 +8,7 @@ export enum UpdateCounterEffectMode {
     Set = 'set',
 }
 
-export class UpdateCounterEffect implements Effect {
+export class UpdateCounterEffect implements Effect, CustomEffect {
     // @ts-ignore
     readonly type: KnownEffectType = 'firebot:update-counter' as KnownEffectType;
 
@@ -22,6 +24,11 @@ export class UpdateCounterEffect implements Effect {
 
     toString(): string {
         return `UpdateCounterEffect { counterId: ${this.counterId}, mode: ${this.mode}, value: ${this.value} }`;
+    }
+
+    async execute(runRequest: RunRequest<ScriptParams>): Promise<void> {
+        const override = this.mode === UpdateCounterEffectMode.Set;
+        await (runRequest.modules as any).counterManager.updateCounterValue(this.counterId, this.value, override);
     }
 
     // eslint-disable-next-line no-undef
