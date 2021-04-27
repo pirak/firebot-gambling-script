@@ -21,9 +21,13 @@ function addManagersToRunRequest(
 ): void {
     // @ts-ignore
     runRequest.modules.logger = {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         info: (msg: string) => {},
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         warn: (msg: string) => {},
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         debug: (msg: string) => {},
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         error: (msg: string) => {},
     };
 
@@ -77,7 +81,9 @@ function addManagersToRunRequest(
 
     // @ts-ignore
     runRequest.modules.currencyDb = {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         adjustCurrencyForUser: (username: string, id: string, amount: number, action: string) => {},
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         getUserCurrencyAmount: (username: string, id: string) => {
             return 10000;
         },
@@ -85,9 +91,11 @@ function addManagersToRunRequest(
 
     // @ts-ignore
     runRequest.modules.counterManager = {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         updateCounterValue: (counterId: string, value: number, override: boolean) => {
             return Promise.resolve();
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         getCounter: (id: string) => {
             return {
                 id: jackpotId,
@@ -103,6 +111,7 @@ function addManagersToRunRequest(
 
     // @ts-ignore
     runRequest.modules.twitchChat = {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sendChatMessage(message: string, whisperTarget?: string, accountType?: 'bot' | 'streamer') {},
     };
 }
@@ -228,20 +237,14 @@ describe('The Gamble Effect Handler', () => {
 });
 
 describe('The Gamble Effect', () => {
-    it('should execute the effects on a valid gamble', async () => {
+    it('should execute the effects on a valid jackpot winning gamble', async () => {
         const runRequest = runRequestBuilder();
         const event = effectTriggerBuilder('pirak__', ['20%']);
 
         mockExpectedRoll(100);
-        const expectedEffects = [
-            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 1000),
-            new UpdateCounterEffect(event.effect.jackpotCounterId, UpdateCounterEffectMode.Set, 0),
-            new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
-        ];
 
         // @ts-ignore
         const adjustCurrencyMock = jest.spyOn(runRequest.modules.currencyDb, 'adjustCurrencyForUser');
-        // @ts-ignore
         const updateCounterMock = jest.spyOn(runRequest.modules.counterManager, 'updateCounterValue');
         const chatMessageMock = jest.spyOn(runRequest.modules.twitchChat, 'sendChatMessage');
 
@@ -250,6 +253,50 @@ describe('The Gamble Effect', () => {
         expect(updateCounterMock).toHaveBeenCalledWith(jackpotId, 0, true);
         expect(chatMessageMock).toHaveBeenCalledWith(
             'Rolled 100. $user won the jackpot of 1000 points and now has a total of 11000.',
+            undefined,
+            'bot',
+        );
+    });
+
+    it('should execute the effects on a valid winning gamble', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', ['100']);
+        event.effect.jackpotPercent = 40;
+
+        mockExpectedRoll(80);
+
+        // @ts-ignore
+        const adjustCurrencyMock = jest.spyOn(runRequest.modules.currencyDb, 'adjustCurrencyForUser');
+        const updateCounterMock = jest.spyOn(runRequest.modules.counterManager, 'updateCounterValue');
+        const chatMessageMock = jest.spyOn(runRequest.modules.twitchChat, 'sendChatMessage');
+
+        await buildGambleEffect(runRequest).onTriggerEvent(event);
+        expect(adjustCurrencyMock).toHaveBeenCalledWith('pirak__', currencyId, 60, 'adjust');
+        expect(updateCounterMock).toHaveBeenCalledTimes(0);
+        expect(chatMessageMock).toHaveBeenCalledWith(
+            'Rolled 80. $user won 60 points and now has a total of 10060.',
+            undefined,
+            'bot',
+        );
+    });
+
+    it('should execute the effects on a valid losing gamble', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', ['100']);
+        event.effect.jackpotPercent = 50;
+
+        mockExpectedRoll(20);
+
+        // @ts-ignore
+        const adjustCurrencyMock = jest.spyOn(runRequest.modules.currencyDb, 'adjustCurrencyForUser');
+        const updateCounterMock = jest.spyOn(runRequest.modules.counterManager, 'updateCounterValue');
+        const chatMessageMock = jest.spyOn(runRequest.modules.twitchChat, 'sendChatMessage');
+
+        await buildGambleEffect(runRequest).onTriggerEvent(event);
+        expect(adjustCurrencyMock).toHaveBeenCalledWith('pirak__', currencyId, -60, 'adjust');
+        expect(updateCounterMock).toHaveBeenCalledWith(jackpotId, 30, false);
+        expect(chatMessageMock).toHaveBeenCalledWith(
+            'Rolled 20. $user lost 60 points and now has a total of 9940.',
             undefined,
             'bot',
         );
