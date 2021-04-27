@@ -1,7 +1,8 @@
 # Changelog
 
 ## Unreleased
-- Remove: need to enter currency and counter IDs manually; **needs Firebot v5.37.0 or newer**
+- Refactor: Implement as startup script **needs Firebot v5.37.0 or newer**
+- …
 
 ## v0.1.3
 - Fix: percentage mode ignoring disabled jackpot setting

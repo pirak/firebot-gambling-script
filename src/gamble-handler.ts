@@ -1,18 +1,12 @@
 import { GambleEntry } from './model/gamble-entry';
-import { Effect, LeveledLogMethod } from 'firebot-custom-scripts-types';
-import { Params } from './main';
 import { GambleMode } from './model/gamble-mode';
 import { GambleResult, GambleResultType } from './model/gamble-result';
 import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
 import { CurrencyEffect, CurrencyAction } from './helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from './helpers/effects/update-counter-effect';
-
-type Logger = {
-    debug: LeveledLogMethod;
-    info: LeveledLogMethod;
-    warn: LeveledLogMethod;
-    error: LeveledLogMethod;
-};
+import { CustomEffect } from './helpers/effects/custom-effect';
+import { Logger } from 'firebot-custom-scripts-types/modules/logger';
+import { Params } from './gamble-effect';
 
 export class GambleHandler {
     private readonly gamblingMode: GambleMode;
@@ -35,7 +29,7 @@ export class GambleHandler {
         }
     }
 
-    handle(params: Params, entry: GambleEntry, jackpotValue: number): Effect[] {
+    handle(params: Params, entry: GambleEntry, jackpotValue: number): CustomEffect[] {
         const gambleResult = this.gamblingMode.winnings(entry.userPointsEntered, this.jackpotEnabled);
         this.logger.info(`${gambleResult}`);
         return this.gambleResultEffects(params, entry, gambleResult, jackpotValue);
@@ -54,11 +48,11 @@ export class GambleHandler {
         entry: GambleEntry,
         result: GambleResult,
         jackpotValue: number,
-    ): Effect[] {
-        const effects: Effect[] = [];
+    ): CustomEffect[] {
+        const effects: CustomEffect[] = [];
 
         if (result.type === GambleResultType.Won) {
-            const pointsAdd = new CurrencyEffect(params.currency, CurrencyAction.Add, entry.user, result.amount);
+            const pointsAdd = new CurrencyEffect(params.currencyId, CurrencyAction.Add, entry.user, result.amount);
             effects.push(pointsAdd);
 
             const message = GambleHandler.replaceMessagePlaceholders(
@@ -80,13 +74,18 @@ export class GambleHandler {
             );
             effects.push(new ChatMessageEffect(message));
         } else if (result.type === GambleResultType.Lost) {
-            const pointsRemove = new CurrencyEffect(params.currency, CurrencyAction.Remove, entry.user, result.amount);
+            const pointsRemove = new CurrencyEffect(
+                params.currencyId,
+                CurrencyAction.Remove,
+                entry.user,
+                result.amount,
+            );
             effects.push(pointsRemove);
 
             const jackpotAddAmount = Math.floor(result.amount * this.jackpotPercent);
             if (jackpotAddAmount > 0) {
                 const addToJackpot = new UpdateCounterEffect(
-                    params.jackpotCounter,
+                    params.jackpotCounterId,
                     UpdateCounterEffectMode.Increment,
                     jackpotAddAmount,
                 );
@@ -102,10 +101,10 @@ export class GambleHandler {
             );
             effects.push(new ChatMessageEffect(message));
         } else if (result.type === GambleResultType.Jackpot) {
-            const pointsAdd = new CurrencyEffect(params.currency, CurrencyAction.Add, entry.user, jackpotValue);
+            const pointsAdd = new CurrencyEffect(params.currencyId, CurrencyAction.Add, entry.user, jackpotValue);
             effects.push(pointsAdd);
 
-            const resetJackpot = new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Set, 0);
+            const resetJackpot = new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Set, 0);
             effects.push(resetJackpot);
 
             const message = GambleHandler.replaceMessagePlaceholders(

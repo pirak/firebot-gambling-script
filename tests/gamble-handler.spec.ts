@@ -2,12 +2,12 @@ import { GambleHandler } from '../src/gamble-handler';
 import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
 import { ArgumentsOf, mockExpectedRoll, replaceMessageParams } from './helpers';
 import { ScriptModules } from 'firebot-custom-scripts-types';
-import { defaultParams, Params } from '../src/main';
 import { GambleResult, GambleResultType } from '../src/model/gamble-result';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
 import { CurrencyAction, CurrencyEffect } from '../src/helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
 import { GambleEntry } from '../src/model/gamble-entry';
+import { defaultParams, Params } from '../src/gamble-effect';
 
 const mockLogger = {
     info: jest.fn<void, ArgumentsOf<ScriptModules['logger']['info']>>(),
@@ -74,7 +74,7 @@ describe('The Gambling Handler Effect Creator', () => {
     it('should for winning results add points to the user and create a chat message', async () => {
         const result = new GambleResult(GambleResultType.Won, 52, 120);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currency, CurrencyAction.Add, 'pirak__', 120),
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 120),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 52, 120, 10120)),
         ];
 
@@ -84,8 +84,8 @@ describe('The Gambling Handler Effect Creator', () => {
     it('should for losing results add points to the user, add points to the jackpot and create a chat message', async () => {
         const result = new GambleResult(GambleResultType.Lost, 48, 120);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 120),
-            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Increment, 120),
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 120),
+            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 120),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 48, 120, 10000 - 120)),
         ];
 
@@ -95,8 +95,8 @@ describe('The Gambling Handler Effect Creator', () => {
     it('should for jackpot results add points to the user, reset the jackpot and create a chat message', async () => {
         const result = new GambleResult(GambleResultType.Jackpot, 100);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currency, CurrencyAction.Add, 'pirak__', 1000),
-            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Set, 0),
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 1000),
+            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Set, 0),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
         ];
 
@@ -119,7 +119,7 @@ describe('The Gambling Handler', () => {
         const entry = new GambleEntry('pirak__', 10000, 1000);
         mockExpectedRoll(52);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currency, CurrencyAction.Add, 'pirak__', 40),
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 40),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 52, 40, 10040)),
         ];
 
@@ -130,8 +130,8 @@ describe('The Gambling Handler', () => {
         const entry = new GambleEntry('pirak__', 10000, 1000);
         mockExpectedRoll(48);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 40),
-            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Increment, 40),
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 40),
+            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 40),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 48, 40, 10000 - 40)),
         ];
 
@@ -142,8 +142,8 @@ describe('The Gambling Handler', () => {
         const entry = new GambleEntry('pirak__', 10000, 1000);
         mockExpectedRoll(100);
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currency, CurrencyAction.Add, 'pirak__', 1000),
-            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Set, 0),
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Add, 'pirak__', 1000),
+            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Set, 0),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
         ];
 
@@ -160,7 +160,7 @@ describe('The Gambling Handler', () => {
         const gambleHandler = new GambleHandler(mode, mockLogger, 100, 0);
 
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 120),
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 120),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 120, 10000 - 120)),
         ];
 
@@ -183,8 +183,8 @@ describe('The Gambling Handler', () => {
         const gambleHandler = new GambleHandler(mode, mockLogger, 100, 50);
 
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 120),
-            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Increment, 60),
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 120),
+            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 60),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 120, 10000 - 120)),
         ];
 
@@ -202,8 +202,8 @@ describe('The Gambling Handler', () => {
         const gambleHandler = new GambleHandler(mode, mockLogger, 100, 50);
 
         const expectedEffects = [
-            new CurrencyEffect(defaultParams().currency, CurrencyAction.Remove, 'pirak__', 49),
-            new UpdateCounterEffect(params.jackpotCounter, UpdateCounterEffectMode.Increment, 24),
+            new CurrencyEffect(defaultParams().currencyId, CurrencyAction.Remove, 'pirak__', 49),
+            new UpdateCounterEffect(params.jackpotCounterId, UpdateCounterEffectMode.Increment, 24),
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 49, 10000 - 49)),
         ];
 
