@@ -1,8 +1,6 @@
 import { buildGambleEffect, defaultParams, handle, Params } from '../src/gamble-effect';
 import { RunRequest, Trigger } from 'firebot-custom-scripts-types';
 import { ScriptParams } from '../src/main';
-import { Counter } from '../src/helpers/firebot-internals';
-import { run } from 'jest';
 import { GambleHandler } from '../src/gamble-handler';
 import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
 import { Logger } from 'firebot-custom-scripts-types/modules/logger';
@@ -10,6 +8,7 @@ import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
 import { mockExpectedRoll, replaceMessageParams } from './helpers';
 import { CurrencyAction, CurrencyEffect } from '../src/helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
+import { Counter } from 'firebot-custom-scripts-types/modules/counter-manager';
 
 const currencyId = '7b9ac050-a096-11eb-9ce3-69b33571b547';
 const jackpotId = '71dd1e86-178d-491d-8f61-9c5851faf8a8';
@@ -22,14 +21,10 @@ function addManagersToRunRequest(
 ): void {
     // @ts-ignore
     runRequest.modules.logger = {
-        info: (msg: string) => {
-        },
-        warn: (msg: string) => {
-        },
-        debug: (msg: string) => {
-        },
-        error: (msg: string) => {
-        },
+        info: (msg: string) => {},
+        warn: (msg: string) => {},
+        debug: (msg: string) => {},
+        error: (msg: string) => {},
     };
 
     // @ts-ignore
@@ -59,6 +54,9 @@ function addManagersToRunRequest(
         name: 'jackpot',
         saveToTxtFile: false,
         value: jackpotValue,
+        maximumEffects: { id: '', list: [] },
+        minimumEffects: { id: '', list: [] },
+        updateEffects: { id: '', list: [] },
     };
 
     // @ts-ignore
@@ -67,13 +65,13 @@ function addManagersToRunRequest(
             if (name.toLowerCase() === counter.name) {
                 return counter;
             }
-            return null;
+            return undefined;
         },
         getCounter: (id: string) => {
             if (id === counter.id) {
                 return counter;
             }
-            return null;
+            return undefined;
         },
     };
 
@@ -87,12 +85,18 @@ function addManagersToRunRequest(
 
     // @ts-ignore
     runRequest.modules.counterManager = {
-        updateCounterValue: (counterId: string, value: number, override: boolean) => {},
+        updateCounterValue: (counterId: string, value: number, override: boolean) => {
+            return Promise.resolve();
+        },
         getCounter: (id: string) => {
             return {
                 id: jackpotId,
                 name: 'Jackpot',
                 value: 1000,
+                saveToTxtFile: false,
+                maximumEffects: { id: '', list: [] },
+                minimumEffects: { id: '', list: [] },
+                updateEffects: { id: '', list: [] },
             };
         },
     };
@@ -167,7 +171,7 @@ describe('The Gamble Effect Handler', () => {
         const runRequest = runRequestBuilder();
         const event = effectTriggerBuilder('pirak__', []);
 
-        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        const effects = await handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
         expect(effects).toEqual([]);
     });
 
@@ -175,7 +179,7 @@ describe('The Gamble Effect Handler', () => {
         const runRequest = runRequestBuilder();
         const event = effectTriggerBuilder('pirak__', ['all', '123']);
 
-        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        const effects = await handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
         expect(effects).toEqual([]);
     });
 
@@ -183,7 +187,7 @@ describe('The Gamble Effect Handler', () => {
         const runRequest = runRequestBuilder();
         const event = effectTriggerBuilder('pirak__', ['all', '123']);
 
-        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        const effects = await handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
         expect(effects).toEqual([]);
     });
 
@@ -195,7 +199,7 @@ describe('The Gamble Effect Handler', () => {
             new ChatMessageEffect(defaultParams().messageEntryBelowMinimum.replace('%min', String(100))),
         ];
 
-        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        const effects = await handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
         expect(effects).toEqual(expectedEffects);
     });
 
@@ -203,7 +207,7 @@ describe('The Gamble Effect Handler', () => {
         const runRequest = runRequestBuilder();
         const event = effectTriggerBuilder('pirak__', ['20000']);
 
-        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        const effects = await handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
         expect(effects).toEqual([]);
     });
 
@@ -218,7 +222,7 @@ describe('The Gamble Effect Handler', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
         ];
 
-        const effects = handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
+        const effects = await handle(runRequest.modules, event, gambleHandlerBuilder(runRequest.modules.logger));
         expect(effects).toEqual(expectedEffects);
     });
 });

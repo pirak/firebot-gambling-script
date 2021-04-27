@@ -9,8 +9,7 @@ export enum UpdateCounterEffectMode {
 }
 
 export class UpdateCounterEffect implements Effect, CustomEffect {
-    // @ts-ignore
-    readonly type: KnownEffectType = 'firebot:update-counter' as KnownEffectType;
+    readonly type: KnownEffectType = 'firebot:update-counter';
 
     readonly counterId: string;
     readonly mode: UpdateCounterEffectMode;

@@ -6,7 +6,7 @@ import { GambleHandler } from './gamble-handler';
 import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { CustomEffect } from './helpers/effects/custom-effect';
 import { Logger } from 'firebot-custom-scripts-types/modules/logger';
-import { CounterAccess, CurrencyAccess } from './helpers/firebot-internals';
+import { CurrencyAccess } from './helpers/firebot-internals';
 
 export interface Params {
     currencyId: string;
@@ -219,33 +219,38 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
                 event.effect.minimumEntry,
                 event.effect.jackpotPercent,
             );
-            const effects = handle(runRequest.modules, event, gambleHandler);
-            return await Promise.all(effects.map((e) => e.execute(runRequest))).then(() => true);
+            const effects = await handle(runRequest.modules, event, gambleHandler);
+            return Promise.all(effects.map((e) => e.execute(runRequest))).then(() => true);
         },
     };
 
     return gambleEffect;
 }
 
-export function handle(
+export async function handle(
     scriptModules: ScriptModules,
     event: { effect: Params; trigger: Trigger },
     gambleHandler: GambleHandler,
-): CustomEffect[] {
+): Promise<CustomEffect[]> {
     const logger = scriptModules.logger;
 
     if (validateTrigger(logger, event.trigger) === Result.Err) {
         return [];
     }
 
-    const commandArgs = event.trigger.metadata.userCommand?.args;
+    // validateTrigger ensures args are defined and have the needed length
+    const commandArgs: string[] = event.trigger.metadata.userCommand?.args!;
     const username = event.trigger.metadata.username;
     const currency = event.effect.currencyId;
-    const userTotalPoints = CurrencyAccess.getUserCurrency(scriptModules, username, currency)!;
+    const userTotalPoints = await CurrencyAccess.getUserCurrency(scriptModules, username, currency);
+    if (userTotalPoints === undefined) {
+        logger.error(`Cannot retrieve currency with ID ${currency} for user ${username}!`);
+        return [];
+    }
 
-    const userEnteredPoints = enteredPoints(userTotalPoints, commandArgs![0]);
+    const userEnteredPoints = enteredPoints(userTotalPoints, commandArgs[0]);
     if (userEnteredPoints === undefined) {
-        logger.info(`Invalid format of argument to gambling command: ${commandArgs![0]}`);
+        logger.info(`Invalid format of argument to gambling command: ${commandArgs[0]}`);
         return [];
     }
 
@@ -258,7 +263,8 @@ export function handle(
     }
 
     const gambleEntry = new GambleEntry(username, userTotalPoints, userEnteredPoints!);
-    const jackpotValue = CounterAccess.getCounterById(scriptModules, event.effect.jackpotCounterId)!.value;
+    const jackpotValue = scriptModules.counterManager.getCounter(event.effect.jackpotCounterId)!.value;
+    scriptModules.logger.info('Jackpot Value: ' + jackpotValue);
     return gambleHandler.handle(event.effect, gambleEntry, jackpotValue);
 }
 

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Refactor: Implement as startup script
 - …
 
 ## v0.1.3
