@@ -27,7 +27,7 @@ export class UpdateCounterEffect implements Effect, CustomEffect {
 
     async execute(runRequest: RunRequest<ScriptParams>): Promise<void> {
         const override = this.mode === UpdateCounterEffectMode.Set;
-        await (runRequest.modules as any).counterManager.updateCounterValue(this.counterId, this.value, override);
+        await runRequest.modules.counterManager.updateCounterValue(this.counterId, this.value, override);
     }
 
     // eslint-disable-next-line no-undef
