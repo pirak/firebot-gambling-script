@@ -93,6 +93,25 @@ It works the same way in the losing direction.
 For a roll of 49 they lose 2 points, 48 results in 4 points lost, and so on.
 
 
+### Threshold/Bigger Than Target
+
+The script generates a random number between 0 and `maxRoll` (inclusive).
+The setting ‘Threshold Win/Lose’ defines the gamble result:
+- If the roll is less than the threshold:
+  The user loses the 100 points they entered, then having 900 points.
+- If the roll is exactly the threshold: The user neither wins not loses anything.
+- If the roll is greater than the threshold:
+  The user wins the entered points multiplied by the ‘Won Points Multiplicator’.
+  E.g. for a value of `2`, they win 200 points, then having 1200.
+
+The ‘Jackpot Target Roll‘ overrides those results.
+If the roll is exactly the jackpot target, the user wins the entire jackpot of
+500 points, then having 1500 points.
+You can set the target to a value that can not be rolled in a regular game
+(e.g. -1, or anything bigger than your value for `maxRoll`) to disable the
+Jackpot.
+
+
 
 ## Usage
 

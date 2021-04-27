@@ -149,7 +149,7 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
                     </ul>
                 </div>
                 <div ng-if="effect.mode === 'Threshold'">
-                    <div class="input-group">
+                    <div class="input-group" style="margin-top: 4px">
                         <span class="input-group-addon">Maximum Roll (inclusive)</span>
                         <input type="number" min="0" step="1" ng-model="effect.modeThresholdMaxRoll" class="form-control">
                     </div>
