@@ -1,4 +1,6 @@
-import { Effect, Firebot } from 'firebot-custom-scripts-types';
+import { Effect, Firebot, RunRequest } from 'firebot-custom-scripts-types';
+import { CustomEffect } from './custom-effect';
+import { ScriptParams } from '../../main';
 import KnownEffectType = Firebot.KnownEffectType;
 
 export enum CurrencyAction {
@@ -17,7 +19,7 @@ export enum CurrencyEffectTarget {
  * Firebot supports updating the currency of multiple users at once, but that is
  * currently not implemented.
  */
-export class CurrencyEffect implements Effect {
+export class CurrencyEffect implements Effect, CustomEffect {
     readonly type: KnownEffectType = 'firebot:currency';
 
     readonly currency: string;
@@ -42,6 +44,18 @@ export class CurrencyEffect implements Effect {
 
     toString(): string {
         return `CurrencyEffect { currency: ${this.currency}, action: ${this.action}, userTarget: ${this.userTarget}, amount: ${this.amount} }`;
+    }
+
+    async execute(runRequest: RunRequest<ScriptParams>): Promise<void> {
+        const amount = this.action === CurrencyAction.Remove ? -1 * this.amount : this.amount;
+        const action = this.action === CurrencyAction.Set ? 'set' : 'adjust';
+
+        await (runRequest.modules as any).currencyDb.adjustCurrencyForUser(
+            this.userTarget,
+            this.currency,
+            amount,
+            action,
+        );
     }
 
     // eslint-disable-next-line no-undef

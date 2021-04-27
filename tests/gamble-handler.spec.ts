@@ -2,12 +2,12 @@ import { GambleHandler } from '../src/gamble-handler';
 import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
 import { ArgumentsOf, mockExpectedRoll, replaceMessageParams } from './helpers';
 import { ScriptModules } from 'firebot-custom-scripts-types';
-import { defaultParams, Params } from '../src/main';
 import { GambleResult, GambleResultType } from '../src/model/gamble-result';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
 import { CurrencyAction, CurrencyEffect } from '../src/helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
 import { GambleEntry } from '../src/model/gamble-entry';
+import { defaultParams, Params } from '../src/gamble-effect';
 
 const mockLogger = {
     info: jest.fn<void, ArgumentsOf<ScriptModules['logger']['info']>>(),
@@ -17,13 +17,11 @@ const mockLogger = {
 };
 
 const params = defaultParams();
-params.currentJackpotAmount = '1000';
-params.userCurrentPoints = '10000';
 
 describe('The Gambling Handler Message Replacer', () => {
     const messageReplacer = (params: Params, gambleResult: GambleResult, message: string) =>
         // @ts-ignore
-        GambleHandler.replaceMessagePlaceholders(params, gambleResult, message);
+        GambleHandler.replaceMessagePlaceholders(message, params, gambleResult, 10000, 1000);
 
     it('should replace roll, amount, and newTotal in a neutral message', async () => {
         const result = new GambleResult(GambleResultType.Neutral, 50, 0);
@@ -60,16 +58,17 @@ describe('The Gambling Handler Message Replacer', () => {
 
 describe('The Gambling Handler Effect Creator', () => {
     const gambleHandler = new GambleHandler(new GambleModePercentage(), mockLogger, 100, 100);
+    const gambleEntry = new GambleEntry('pirak__', 10000, 1000);
 
-    const effectCreator = (params: Params, result: GambleResult) =>
+    const effectCreator = (params: Params, entry: GambleEntry, result: GambleResult) =>
         // @ts-ignore
-        gambleHandler.gambleResultEffects(params, 'pirak__', result);
+        gambleHandler.gambleResultEffects(params, entry, result, 1000);
 
     it('should for neutral results only create a chat message', async () => {
         const result = new GambleResult(GambleResultType.Neutral, 50);
         const expectedEffects = [new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 50, 0, 10000))];
 
-        expect(effectCreator(params, result)).toEqual(expectedEffects);
+        expect(effectCreator(params, gambleEntry, result)).toEqual(expectedEffects);
     });
 
     it('should for winning results add points to the user and create a chat message', async () => {
@@ -79,7 +78,7 @@ describe('The Gambling Handler Effect Creator', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 52, 120, 10120)),
         ];
 
-        expect(effectCreator(params, result)).toEqual(expectedEffects);
+        expect(effectCreator(params, gambleEntry, result)).toEqual(expectedEffects);
     });
 
     it('should for losing results add points to the user, add points to the jackpot and create a chat message', async () => {
@@ -90,7 +89,7 @@ describe('The Gambling Handler Effect Creator', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 48, 120, 10000 - 120)),
         ];
 
-        expect(effectCreator(params, result)).toEqual(expectedEffects);
+        expect(effectCreator(params, gambleEntry, result)).toEqual(expectedEffects);
     });
 
     it('should for jackpot results add points to the user, reset the jackpot and create a chat message', async () => {
@@ -101,7 +100,7 @@ describe('The Gambling Handler Effect Creator', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
         ];
 
-        expect(effectCreator(params, result)).toEqual(expectedEffects);
+        expect(effectCreator(params, gambleEntry, result)).toEqual(expectedEffects);
     });
 });
 
@@ -113,7 +112,7 @@ describe('The Gambling Handler', () => {
         mockExpectedRoll(50);
         const expectedEffects = [new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 50, 0, 10000))];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
     });
 
     it('should for winning results add points to the user and create a chat message', async () => {
@@ -124,7 +123,7 @@ describe('The Gambling Handler', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageWon, 52, 40, 10040)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
     });
 
     it('should for losing results add points to the user, add points to the jackpot and create a chat message', async () => {
@@ -136,7 +135,7 @@ describe('The Gambling Handler', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 48, 40, 10000 - 40)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
     });
 
     it('should for jackpot results add points to the user, reset the jackpot and create a chat message', async () => {
@@ -148,7 +147,7 @@ describe('The Gambling Handler', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageJackpotWon, 100, 1000, 10000 + 1000)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
     });
 
     it('should disable the jackpot for jackpotPercents <= 0', async () => {
@@ -165,12 +164,12 @@ describe('The Gambling Handler', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 120, 10000 - 120)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
         expect(mockFn).toHaveBeenCalledWith(1000, false);
 
         // jackpotPercent -1 should be used as 0
         const gambleHandler2 = new GambleHandler(mode, mockLogger, 100, -1);
-        expect(gambleHandler2.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler2.handle(params, entry, 1000)).toEqual(expectedEffects);
         expect(mockFn).toHaveBeenCalledWith(1000, false);
     });
 
@@ -189,7 +188,7 @@ describe('The Gambling Handler', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 120, 10000 - 120)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
         expect(mockFn).toHaveBeenCalledWith(1000, true);
     });
 
@@ -208,7 +207,7 @@ describe('The Gambling Handler', () => {
             new ChatMessageEffect(replaceMessageParams(defaultParams().messageLost, 40, 49, 10000 - 49)),
         ];
 
-        expect(gambleHandler.handle(params, entry)).toEqual(expectedEffects);
+        expect(gambleHandler.handle(params, entry, 1000)).toEqual(expectedEffects);
         expect(mockFn).toHaveBeenCalledWith(1000, true);
     });
 });
