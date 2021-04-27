@@ -1,16 +1,16 @@
-import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
+import { Rand } from '../src/helpers/rand';
 
 export type ArgumentsOf<F extends Function> = F extends (...args: infer A) => any ? A : never;
 
 // @ts-ignore
-const randIntInclusiveOriginal = jest.spyOn(GambleModePercentage, 'randIntInclusive');
+const randIntInclusiveOriginal = jest.spyOn(Rand, 'randIntInclusive');
 
 export function mockExpectedRoll(value: number): void {
     // @ts-ignore
     randIntInclusiveOriginal.mockImplementationOnce(() => value);
 }
 
-export function resetRngGambleModePercentage(): void {
+export function resetRndRandIntInclusive(): void {
     randIntInclusiveOriginal.mockRestore();
 }
 

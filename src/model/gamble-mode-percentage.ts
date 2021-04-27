@@ -1,5 +1,6 @@
 import { GambleMode } from './gamble-mode';
 import { GambleResult, GambleResultType } from './gamble-result';
+import { Rand } from '../helpers/rand';
 
 export class GambleModePercentage implements GambleMode {
     private readonly maxRoll: number = 100;
@@ -17,7 +18,7 @@ export class GambleModePercentage implements GambleMode {
      * @param jackpotEnabled if disabled, the user wins gamblingAmount instead.
      */
     winnings(gamblingAmount: number, jackpotEnabled: boolean = true): GambleResult {
-        const roll = GambleModePercentage.randIntInclusive(this.maxRoll);
+        const roll = Rand.randIntInclusive(this.maxRoll);
 
         if (roll === this.neutralValue) {
             return new GambleResult(GambleResultType.Neutral, this.neutralValue);
@@ -31,16 +32,5 @@ export class GambleModePercentage implements GambleMode {
         const resultAmount = Math.abs(this.neutralValue - roll) * 0.02 * gamblingAmount;
 
         return new GambleResult(resultType, roll, Math.floor(resultAmount));
-    }
-
-    /**
-     * Generates a random integer in range [0, max] inclusive.
-     * @param max upper bound inclusive.
-     * @returns a random integer in range [0, max] inclusive.
-     * @private
-     */
-    private static randIntInclusive(max: number): number {
-        // Node crypto module for proper randomness is not available in Firebot
-        return Math.floor(Math.random() * (max + 1));
     }
 }
