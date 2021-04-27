@@ -3,7 +3,7 @@ import { mockExpectedRoll } from '../helpers';
 import { GambleResult, GambleResultType } from '../../src/model/gamble-result';
 
 describe('The Gambling Mode Threshold', () => {
-    const gambleMode = new GambleModeThreshold(100, 60, 70, 3);
+    const gambleMode = new GambleModeThreshold({ maxRoll: 100, threshold: 60, jackpotTarget: 70, winPointsFactor: 3 });
 
     it('should return the jackpot if enabled and rolled', async () => {
         mockExpectedRoll(70);
@@ -19,7 +19,12 @@ describe('The Gambling Mode Threshold', () => {
 
         // jackpot target can also be placed in the regular losing range
         mockExpectedRoll(40);
-        const gambleMode2 = new GambleModeThreshold(100, 60, 40, 3);
+        const gambleMode2 = new GambleModeThreshold({
+            maxRoll: 100,
+            threshold: 60,
+            jackpotTarget: 40,
+            winPointsFactor: 3,
+        });
         const expected2 = new GambleResult(GambleResultType.Lost, 40, 200);
         expect(gambleMode2.winnings(200, false)).toEqual(expected2);
     });
@@ -34,7 +39,12 @@ describe('The Gambling Mode Threshold', () => {
     });
 
     it('should return the jackpot if enabled and target identical to threshold', async () => {
-        const gambleMode = new GambleModeThreshold(100, 60, 60, 3);
+        const gambleMode = new GambleModeThreshold({
+            maxRoll: 100,
+            threshold: 60,
+            jackpotTarget: 60,
+            winPointsFactor: 3,
+        });
         const expected = new GambleResult(GambleResultType.Jackpot, 60);
 
         mockExpectedRoll(60);
@@ -42,7 +52,12 @@ describe('The Gambling Mode Threshold', () => {
     });
 
     it('should return a neutral result if jackpot disabled and target identical to threshold', async () => {
-        const gambleMode = new GambleModeThreshold(100, 60, 60, 3);
+        const gambleMode = new GambleModeThreshold({
+            maxRoll: 100,
+            threshold: 60,
+            jackpotTarget: 60,
+            winPointsFactor: 3,
+        });
         const expected = new GambleResult(GambleResultType.Neutral, 60, 0);
 
         mockExpectedRoll(60);

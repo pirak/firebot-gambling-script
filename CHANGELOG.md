@@ -1,7 +1,8 @@
 # Changelog
 
 ## Unreleased
-- Refactor: Implement as startup script **needs Firebot v5.37.0 or newer**
+- Refactor: Implement as startup script **needs Firebot v5.37.0 or newer** (#2, #3)
+- Add: Gamble Mode Threshold (#1, #4)
 - …
 
 ## v0.1.3

@@ -2,17 +2,24 @@ import { GambleMode } from './gamble-mode';
 import { GambleResult, GambleResultType } from './gamble-result';
 import { Rand } from '../helpers/rand';
 
+export interface GambleModeThresholdParams {
+    maxRoll: number;
+    threshold: number;
+    jackpotTarget: number;
+    winPointsFactor: number;
+}
+
 export class GambleModeThreshold implements GambleMode {
     private readonly maxRoll: number;
     private readonly threshold: number;
     private readonly jackpotTarget: number;
     private readonly winPointsFactor: number;
 
-    constructor(maxRoll: number, threshold: number, jackpotTarget: number, winPointsFactor: number) {
-        this.maxRoll = maxRoll;
-        this.threshold = threshold;
-        this.jackpotTarget = jackpotTarget;
-        this.winPointsFactor = winPointsFactor;
+    constructor(params: GambleModeThresholdParams) {
+        this.maxRoll = params.maxRoll;
+        this.threshold = params.threshold;
+        this.jackpotTarget = params.jackpotTarget;
+        this.winPointsFactor = params.winPointsFactor;
     }
 
     /**

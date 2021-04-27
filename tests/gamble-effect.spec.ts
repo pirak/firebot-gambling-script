@@ -301,6 +301,29 @@ describe('The Gamble Effect', () => {
             'bot',
         );
     });
+
+    it('should switch to the Threshold mode depending on the parameter mode', async () => {
+        const runRequest = runRequestBuilder();
+        const event = effectTriggerBuilder('pirak__', ['100']);
+        event.effect.mode = 'Threshold';
+        event.effect.jackpotPercent = 50;
+
+        mockExpectedRoll(20);
+
+        // @ts-ignore
+        const adjustCurrencyMock = jest.spyOn(runRequest.modules.currencyDb, 'adjustCurrencyForUser');
+        const updateCounterMock = jest.spyOn(runRequest.modules.counterManager, 'updateCounterValue');
+        const chatMessageMock = jest.spyOn(runRequest.modules.twitchChat, 'sendChatMessage');
+
+        await buildGambleEffect(runRequest).onTriggerEvent(event);
+        expect(adjustCurrencyMock).toHaveBeenCalledWith('pirak__', currencyId, -100, 'adjust');
+        expect(updateCounterMock).toHaveBeenCalledWith(jackpotId, 50, false);
+        expect(chatMessageMock).toHaveBeenCalledWith(
+            'Rolled 20. $user lost 100 points and now has a total of 9900.',
+            undefined,
+            'bot',
+        );
+    });
 });
 
 describe('The argument parser', () => {

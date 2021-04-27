@@ -7,6 +7,7 @@ import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { CustomEffect } from './helpers/effects/custom-effect';
 import { Logger } from 'firebot-custom-scripts-types/modules/logger';
 import { CurrencyAccess } from './helpers/firebot-internals';
+import { GambleModeThreshold } from './model/gamble-mode-threshold';
 
 export interface Params {
     currencyId: string;
@@ -20,6 +21,12 @@ export interface Params {
     messageEntryBelowMinimum: string;
 
     mode: string;
+
+    // the UI doesn’t seem to work anymore if composite types are used
+    modeThresholdMaxRoll: number;
+    modeThresholdThreshold: number;
+    modeThresholdJackpotTarget: number;
+    modeThresholdWinPointsFactor: number;
 }
 
 enum Result {
@@ -45,6 +52,10 @@ export function defaultParams(): Params {
         messageEntryBelowMinimum: '@$user You cannot gamble fewer than %min points.',
 
         mode: 'Percentage Linear',
+        modeThresholdMaxRoll: 100,
+        modeThresholdThreshold: 50,
+        modeThresholdJackpotTarget: 100,
+        modeThresholdWinPointsFactor: 1,
     };
 }
 
@@ -137,13 +148,31 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
                         </li>
                     </ul>
                 </div>
+                <div ng-if="effect.mode === 'Threshold'">
+                    <div class="input-group">
+                        <span class="input-group-addon">Maximum Roll (inclusive)</span>
+                        <input type="number" min="0" step="1" ng-model="effect.modeThresholdMaxRoll" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-top: 4px">
+                        <span class="input-group-addon">Threshold Win/Lose</span>
+                        <input type="number" min="0" step="1" ng-model="effect.modeThresholdThreshold" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-top: 4px">
+                        <span class="input-group-addon">Jackpot Target Roll</span>
+                        <input type="number" min="0" step="1" ng-model="effect.modeThresholdJackpotTarget" class="form-control">
+                    </div>
+                    <div class="input-group" style="margin-top: 4px">
+                        <span class="input-group-addon">Won Points Multiplicator</span>
+                        <input type="number" min="0" step="1" ng-model="effect.modeThresholdWinPointsFactor" class="form-control">
+                    </div>
+                </div>
             </eos-container>
         `,
 
         optionsController: ($scope: Scope, backendCommunicator: any, $q: any, currencyService: any) => {
             $scope.counters = [];
             $scope.currencies = [];
-            $scope.modes = ['Percentage Linear'];
+            $scope.modes = ['Percentage Linear', 'Threshold'];
 
             $scope.loadCounters = () => {
                 $q.when(backendCommunicator.fireEventAsync('get-counters')).then((counters: Counter[]) => {
@@ -194,6 +223,18 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
             if (!$scope.effect.messageEntryBelowMinimum) {
                 $scope.effect.messageEntryBelowMinimum = def.messageEntryBelowMinimum;
             }
+            if (!$scope.effect.modeThresholdMaxRoll) {
+                $scope.effect.modeThresholdMaxRoll = def.modeThresholdMaxRoll;
+            }
+            if (!$scope.effect.modeThresholdThreshold) {
+                $scope.effect.modeThresholdThreshold = def.modeThresholdThreshold;
+            }
+            if (!$scope.effect.modeThresholdJackpotTarget) {
+                $scope.effect.modeThresholdJackpotTarget = def.modeThresholdJackpotTarget;
+            }
+            if (!$scope.effect.modeThresholdWinPointsFactor) {
+                $scope.effect.modeThresholdWinPointsFactor = def.modeThresholdWinPointsFactor;
+            }
         },
 
         optionsValidator: (effect: Params): string[] => {
@@ -213,8 +254,23 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
         },
 
         onTriggerEvent: async (event: { effect: Params; trigger: Trigger }) => {
+            let gambleMode;
+            switch (event.effect.mode) {
+                case 'Threshold':
+                    gambleMode = new GambleModeThreshold({
+                        maxRoll: event.effect.modeThresholdMaxRoll,
+                        threshold: event.effect.modeThresholdThreshold,
+                        jackpotTarget: event.effect.modeThresholdJackpotTarget,
+                        winPointsFactor: event.effect.modeThresholdWinPointsFactor,
+                    });
+                    break;
+                case 'Percentage Linear':
+                default:
+                    gambleMode = new GambleModePercentage();
+            }
+
             const gambleHandler = new GambleHandler(
-                new GambleModePercentage(),
+                gambleMode,
                 runRequest.modules.logger,
                 event.effect.minimumEntry,
                 event.effect.jackpotPercent,
