@@ -1,13 +1,16 @@
-import { EffectCategory, Firebot, RunRequest, ScriptModules, Trigger } from 'firebot-custom-scripts-types';
+import { Firebot, RunRequest, ScriptModules } from 'firebot-custom-scripts-types';
 import { ScriptParams } from './main';
 import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
 import { GambleEntry } from './model/gamble-entry';
 import { GambleHandler } from './gamble-handler';
 import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { CustomEffect } from './helpers/effects/custom-effect';
-import { Logger } from 'firebot-custom-scripts-types/modules/logger';
 import { CurrencyAccess } from './helpers/firebot-internals';
 import { GambleModeThreshold } from './model/gamble-mode-threshold';
+import { Effects } from 'firebot-custom-scripts-types/types/effects';
+import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
+import EffectCategory = Effects.EffectCategory;
+import Trigger = Effects.Trigger;
 
 export interface Params {
     currencyId: string;

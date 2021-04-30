@@ -1,7 +1,9 @@
-import { Effect, Firebot, RunRequest } from 'firebot-custom-scripts-types';
+import { RunRequest } from 'firebot-custom-scripts-types';
 import { CustomEffect } from './custom-effect';
 import { ScriptParams } from '../../main';
-import KnownEffectType = Firebot.KnownEffectType;
+import { Effects } from 'firebot-custom-scripts-types/types/effects';
+import Effect = Effects.Effect;
+import KnownEffectType = Effects.KnownEffectType;
 
 export enum UpdateCounterEffectMode {
     Increment = 'increment',

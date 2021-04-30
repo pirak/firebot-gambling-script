@@ -5,8 +5,8 @@ import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
 import { CurrencyEffect, CurrencyAction } from './helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from './helpers/effects/update-counter-effect';
 import { CustomEffect } from './helpers/effects/custom-effect';
-import { Logger } from 'firebot-custom-scripts-types/modules/logger';
 import { Params } from './gamble-effect';
+import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
 
 export class GambleHandler {
     private readonly gamblingMode: GambleMode;

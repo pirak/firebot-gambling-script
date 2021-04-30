@@ -1,9 +1,12 @@
-import { Effect, Firebot, RunRequest } from 'firebot-custom-scripts-types';
+import { RunRequest } from 'firebot-custom-scripts-types';
 import { CustomEffect } from './custom-effect';
 import { ScriptParams } from '../../main';
+import { Effects } from 'firebot-custom-scripts-types/types/effects';
+import KnownEffectType = Effects.KnownEffectType;
+import Effect = Effects.Effect;
 
 export class ChatMessageEffect implements Effect, CustomEffect {
-    readonly type: Firebot.KnownEffectType = 'firebot:chat';
+    readonly type: KnownEffectType = 'firebot:chat';
 
     readonly message: string;
 

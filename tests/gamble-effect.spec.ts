@@ -1,14 +1,16 @@
 import { buildGambleEffect, defaultParams, handle, Params } from '../src/gamble-effect';
-import { RunRequest, Trigger } from 'firebot-custom-scripts-types';
+import { RunRequest } from 'firebot-custom-scripts-types';
 import { ScriptParams } from '../src/main';
 import { GambleHandler } from '../src/gamble-handler';
 import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
-import { Logger } from 'firebot-custom-scripts-types/modules/logger';
+import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
 import { mockExpectedRoll, replaceMessageParams } from './helpers';
 import { CurrencyAction, CurrencyEffect } from '../src/helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
-import { Counter } from 'firebot-custom-scripts-types/modules/counter-manager';
+import { Counter } from 'firebot-custom-scripts-types/types/modules/counter-manager';
+import { Effects } from 'firebot-custom-scripts-types/types/effects';
+import Trigger = Effects.Trigger;
 
 const currencyId = '7b9ac050-a096-11eb-9ce3-69b33571b547';
 const jackpotId = '71dd1e86-178d-491d-8f61-9c5851faf8a8';
@@ -19,7 +21,6 @@ function addManagersToRunRequest(
     userPoints: number = 10000,
     jackpotValue: number = 1000,
 ): void {
-    // @ts-ignore
     runRequest.modules.logger = {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         info: (msg: string) => {},
@@ -63,8 +64,15 @@ function addManagersToRunRequest(
         updateEffects: { id: '', list: [] },
     };
 
-    // @ts-ignore
     runRequest.modules.counterManager = {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        createCounter(name: string): Counter {
+            return counter;
+        },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        updateCounterValue(id: string, value: number, overridePreviousValue: boolean): Promise<void> {
+            return Promise.resolve(undefined);
+        },
         getCounterByName: (name: string) => {
             if (name.toLowerCase() === counter.name) {
                 return counter;
@@ -79,7 +87,6 @@ function addManagersToRunRequest(
         },
     };
 
-    // @ts-ignore
     runRequest.modules.currencyDb = {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         adjustCurrencyForUser: (username: string, id: string, amount: number, action: string) => {},
@@ -89,27 +96,6 @@ function addManagersToRunRequest(
         },
     };
 
-    // @ts-ignore
-    runRequest.modules.counterManager = {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        updateCounterValue: (counterId: string, value: number, override: boolean) => {
-            return Promise.resolve();
-        },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        getCounter: (id: string) => {
-            return {
-                id: jackpotId,
-                name: 'Jackpot',
-                value: 1000,
-                saveToTxtFile: false,
-                maximumEffects: { id: '', list: [] },
-                minimumEffects: { id: '', list: [] },
-                updateEffects: { id: '', list: [] },
-            };
-        },
-    };
-
-    // @ts-ignore
     runRequest.modules.twitchChat = {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sendChatMessage(message: string, whisperTarget?: string, accountType?: 'bot' | 'streamer') {},
