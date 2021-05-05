@@ -5,7 +5,6 @@ import { GambleEntry } from './model/gamble-entry';
 import { GambleHandler } from './gamble-handler';
 import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { CustomEffect } from './helpers/effects/custom-effect';
-import { CurrencyAccess } from './helpers/firebot-internals';
 import { GambleModeThreshold } from './model/gamble-mode-threshold';
 import { Effects } from 'firebot-custom-scripts-types/types/effects';
 import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
@@ -301,7 +300,7 @@ export async function handle(
     const commandArgs: string[] = event.trigger.metadata.userCommand?.args!;
     const username = event.trigger.metadata.username;
     const currency = event.effect.currencyId;
-    const userTotalPoints = await CurrencyAccess.getUserCurrency(scriptModules, username, currency);
+    const userTotalPoints = await scriptModules.currencyDb.getUserCurrencyAmount(username, currency);
     if (userTotalPoints === undefined) {
         logger.error(`Cannot retrieve currency with ID ${currency} for user ${username}!`);
         return [];

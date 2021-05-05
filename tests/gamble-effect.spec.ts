@@ -10,6 +10,7 @@ import { CurrencyAction, CurrencyEffect } from '../src/helpers/effects/currency-
 import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
 import { Counter } from 'firebot-custom-scripts-types/types/modules/counter-manager';
 import { Effects } from 'firebot-custom-scripts-types/types/effects';
+import { CurrencyAdjustType } from 'firebot-custom-scripts-types/types/modules/currency-db';
 import Trigger = Effects.Trigger;
 
 const currencyId = '7b9ac050-a096-11eb-9ce3-69b33571b547';
@@ -39,14 +40,28 @@ function addManagersToRunRequest(
                 {
                     id: currencyId,
                     name: 'points',
+                    active: true,
+                    limit: 0,
+                    transfer: 'Allow',
+                    interval: 5,
+                    payout: 10,
+                    offline: 0,
+                    bonus: {},
                 },
                 {
                     id: '8c0ac050-a096-11eb-9ce3-69b33571b547',
                     name: 'coins',
+                    active: true,
+                    limit: 0,
+                    transfer: 'Allow',
+                    interval: 5,
+                    payout: 10,
+                    offline: 0,
+                    bonus: {},
                 },
             ];
         },
-        getUserCurrencyAmount: (name: string, id: string) => {
+        getUserCurrencyAmount: async (name: string, id: string) => {
             if (name === username && id === '7b9ac050-a096-11eb-9ce3-69b33571b547') {
                 return userPoints;
             }
@@ -87,11 +102,22 @@ function addManagersToRunRequest(
         },
     };
 
+    // @ts-ignore
     runRequest.modules.currencyDb = {
+        adjustCurrencyForUser: async (
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            username: string,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            id: string,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            amount: number,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            action: CurrencyAdjustType | undefined,
+        ) => {
+            return true;
+        },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        adjustCurrencyForUser: (username: string, id: string, amount: number, action: string) => {},
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        getUserCurrencyAmount: (username: string, id: string) => {
+        getUserCurrencyAmount: async (username: string, id: string) => {
             return 10000;
         },
     };
