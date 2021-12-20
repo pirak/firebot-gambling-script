@@ -22,7 +22,7 @@
     "update": "npm upgrade-interactive --latest"
   },
   "devDependencies": {
-    "@types/copy-webpack-plugin": "8.0.1",
+    "@types/copy-webpack-plugin": "10.1.0",
     "@types/jest": "27.0.3",
     "@types/node": "16.11.12",
     "@typescript-eslint/eslint-plugin": "5.7.0",
