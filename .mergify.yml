@@ -7,4 +7,4 @@ pull_request_rules:
       - title~=^build\(deps-dev\)[:] bump [^\s]+ from ([\d]+)\..+ to \1\.
     actions:
       merge:
-        method: merge
+        method: squash
