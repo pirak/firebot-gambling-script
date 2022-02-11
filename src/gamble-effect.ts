@@ -7,6 +7,7 @@ import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { CustomEffect } from './helpers/effects/custom-effect';
 import { GambleModeThreshold } from './model/gamble-mode-threshold';
 import { Effects } from 'firebot-custom-scripts-types/types/effects';
+import { Currency } from 'firebot-custom-scripts-types/types/modules/currency-db';
 import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
 import EffectCategory = Effects.EffectCategory;
 import Trigger = Effects.Trigger;
@@ -72,8 +73,8 @@ type Scope = {
     [x: string]: any;
 };
 
-export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
-    const gambleEffect: Firebot.EffectType<Params> = {
+export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot.EffectType<Params> {
+    return {
         definition: {
             id: 'pirak:gambling',
             name: 'Custom Gambling',
@@ -171,20 +172,10 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
             </eos-container>
         `,
 
-        optionsController: ($scope: Scope, backendCommunicator: any, $q: any, currencyService: any) => {
-            $scope.counters = [];
-            $scope.currencies = [];
+        optionsController: ($scope: Scope, currencyService: any, countersService: any) => {
+            $scope.counters = countersService.counters ?? ([] as Array<Counter>);
+            $scope.currencies = currencyService.getCurrencies() ?? ([] as Array<Currency>);
             $scope.modes = ['Percentage Linear', 'Threshold'];
-
-            $scope.loadCounters = () => {
-                $q.when(backendCommunicator.fireEventAsync('get-counters')).then((counters: Counter[]) => {
-                    if (counters) {
-                        $scope.counters = counters;
-                    }
-                });
-            };
-
-            $scope.currencies = currencyService.getCurrencies();
 
             $scope.getCounterName = (id: string) => {
                 for (const counter of $scope.counters) {
@@ -203,8 +194,6 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
                 }
                 return null;
             };
-
-            $scope.loadCounters();
 
             const def = defaultParams();
             if (!$scope.effect.minimumEntry) {
@@ -281,8 +270,6 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>) {
             return Promise.all(effects.map((e) => e.execute(runRequest))).then(() => true);
         },
     };
-
-    return gambleEffect;
 }
 
 export async function handle(
