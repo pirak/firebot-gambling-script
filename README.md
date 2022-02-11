@@ -12,22 +12,26 @@ The latest version of this script can be downloaded on the
 
 2. Add the `gamblingScript.js` as Startup Script in the advanced settings.
 
-2. Create a counter that is used to store the jackpot.
+3. Create a counter that is used to store the jackpot.
 
-3. Create a command. The trigger can be anything you want.
+4. Create a command. The trigger can be anything you want.
 
     ![Command Setup Overview](setup_images/command_setup_overview.png)
 
-4. (Optional) add a subcommand that prints the current amount of points in the
+5. (Optional) add a subcommand that prints the current amount of points in the
     jackpot to chat.
 
     ![Command Setup Jackpot](setup_images/command_setup_jackpot.png)
 
-5. Use the fallback command to execute the ‘Custom Gambling’ Effect.
+6. If you used a subcommand in the previous step, use the fallback command to
+    execute the ‘Custom Gambling’ Effect.
+    Otherwise, add the ‘Custom Gambling’ as a regular effect under ‘Base
+    Effects‘.
 
     ![Command Setup Script](setup_images/command_setup_script.png)
 
-6. Adapt the parameters and messages the bot sends for different events as you like.
+7. Adapt the parameters and messages the bot sends for different events as you
+    like.
     Regular substitution of variables starting with `$` works as usual.
     Additionally, the script replaces other values as well:
     - `%roll`: the dice roll the script generated to determine how many points
