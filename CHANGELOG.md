@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Fix: counter that stores the jackpot is not selectable during effect
+  configuration
 - …
 
 ## v1.0.0
