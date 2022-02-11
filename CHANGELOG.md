@@ -1,9 +1,11 @@
 # Changelog
 
 ## Unreleased
+- …
+
+## v1.0.1
 - Fix: counter that stores the jackpot is not selectable during effect
   configuration
-- …
 
 ## v1.0.0
 - Refactor: Implement as startup script **needs Firebot v5.37.0 or newer** (#2, #3)

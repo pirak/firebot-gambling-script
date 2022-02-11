@@ -1,7 +1,7 @@
 import { CustomScriptManifest, DefaultParametersConfig, Firebot, RunRequest } from 'firebot-custom-scripts-types';
 import { buildGambleEffect } from './gamble-effect';
 
-const scriptVersion = '1.0.0';
+const scriptVersion = '1.0.1';
 
 export interface ScriptParams {}
 
