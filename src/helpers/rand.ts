@@ -4,13 +4,15 @@
 
 export class Rand {
     /**
-     * Generates a random integer in range [0, max] inclusive.
-     * @param max upper bound inclusive.
-     * @returns a random integer in range [0, max] inclusive.
+     * Generates a random integer in range [min, max] inclusive.
+     * @param min lower bound >= 0 inclusive.
+     * @param max upper bound >= 0 inclusive.
+     * @returns a random integer in range [min, max] inclusive.
      * @private
      */
-    static randIntInclusive(max: number): number {
+    static randIntInclusive(min: number, max: number): number {
+        const diff = Math.abs(max - min);
         // Node crypto module for proper randomness is not available in Firebot
-        return Math.floor(Math.random() * (max + 1));
+        return Math.floor(Math.random() * (diff + 1)) + min;
     }
 }

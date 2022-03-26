@@ -40,7 +40,7 @@ export class GambleModeThreshold implements GambleMode {
      * @param jackpotEnabled changes the behaviour as described above.
      */
     winnings(gamblingAmount: number, jackpotEnabled: boolean): GambleResult {
-        const roll = Rand.randIntInclusive(this.maxRoll);
+        const roll = Rand.randIntInclusive(0, this.maxRoll);
 
         if (roll === this.jackpotTarget && jackpotEnabled) {
             return new GambleResult(GambleResultType.Jackpot, roll);
