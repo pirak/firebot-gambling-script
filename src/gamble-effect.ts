@@ -23,6 +23,13 @@ type ThresholdOptions = {
     winPointsFactor: number;
 };
 
+type Range = {
+    from: number;
+    to: number;
+    mult?: number;
+    rangeType: string;
+};
+
 export interface Params {
     currencyId: string;
     jackpotCounterId: string;
@@ -37,6 +44,8 @@ export interface Params {
     mode: string;
 
     thresholdOptions: ThresholdOptions;
+
+    ranges: Array<Range>;
 }
 
 enum Result {
@@ -69,6 +78,13 @@ export function defaultParams(): Params {
             jackpotTarget: 100,
             winPointsFactor: 1,
         },
+
+        ranges: [
+            { from: 0, to: 49, mult: -1, rangeType: 'Normal' },
+            { from: 50, to: 50, mult: 0, rangeType: 'Normal' },
+            { from: 51, to: 99, mult: 1, rangeType: 'Normal' },
+            { from: 100, to: 100, rangeType: 'Jackpot' },
+        ],
     };
 }
 
@@ -179,13 +195,18 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
                         <input type="number" min="0" step="1" ng-model="effect.thresholdOptions.winPointsFactor" class="form-control">
                     </div>
                 </div>
+                <div ng-if="effect.mode === 'Ranges'">
+                    <div ng-repeat="range in effect.ranges">
+                        <span>{{ range }}</span><br>
+                    </div>
+                </div>
             </eos-container>
         `,
 
         optionsController: ($scope: Scope, currencyService: any, countersService: any) => {
             $scope.counters = countersService.counters ?? ([] as Array<Counter>);
             $scope.currencies = currencyService.getCurrencies() ?? ([] as Array<Currency>);
-            $scope.modes = ['Percentage Linear', 'Threshold'];
+            $scope.modes = ['Percentage Linear', 'Threshold', 'Ranges'];
 
             $scope.getCounterName = (id: string) => {
                 for (const counter of $scope.counters) {
@@ -214,6 +235,7 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             eff.messageWon ??= def.messageWon;
             eff.messageEntryBelowMinimum ??= def.messageEntryBelowMinimum;
             eff.thresholdOptions ??= def.thresholdOptions;
+            eff.ranges ??= def.ranges;
         },
 
         optionsValidator: (effect: Params): string[] => {
@@ -229,6 +251,10 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
                 errors.push('Please select a gambling mode!');
             }
 
+            if (effect.mode === 'Ranges') {
+                errors.push(...validateRangesOptions(effect));
+            }
+
             return errors;
         },
 
@@ -238,6 +264,8 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
                 case 'Threshold':
                     gambleMode = new GambleModeThreshold(event.effect.thresholdOptions);
                     break;
+                case 'Ranges':
+                    console.log('Ranges mode not yet implemented. Defaulting to Percentage Linear');
                 case 'Percentage Linear':
                 default:
                     gambleMode = new GambleModePercentage();
@@ -253,6 +281,12 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             return Promise.all(effects.map((e) => e.execute(runRequest))).then(() => true);
         },
     };
+}
+
+function validateRangesOptions(effect: Params): string[] {
+    const errors = [];
+    errors.push('ToDo: Not Implemented!');
+    return errors;
 }
 
 export async function handle(
