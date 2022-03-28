@@ -12,6 +12,13 @@ import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
 import EffectCategory = Effects.EffectCategory;
 import Trigger = Effects.Trigger;
 
+type ThresholdOptions = {
+    maxRoll: number;
+    threshold: number;
+    jackpotTarget: number;
+    winPointsFactor: number;
+};
+
 export interface Params {
     currencyId: string;
     jackpotCounterId: string;
@@ -25,11 +32,7 @@ export interface Params {
 
     mode: string;
 
-    // the UI doesn’t seem to work anymore if composite types are used
-    modeThresholdMaxRoll: number;
-    modeThresholdThreshold: number;
-    modeThresholdJackpotTarget: number;
-    modeThresholdWinPointsFactor: number;
+    thresholdOptions: ThresholdOptions;
 }
 
 enum Result {
@@ -55,10 +58,13 @@ export function defaultParams(): Params {
         messageEntryBelowMinimum: '@$user You cannot gamble fewer than %min points.',
 
         mode: 'Percentage Linear',
-        modeThresholdMaxRoll: 100,
-        modeThresholdThreshold: 50,
-        modeThresholdJackpotTarget: 100,
-        modeThresholdWinPointsFactor: 1,
+
+        thresholdOptions: {
+            maxRoll: 100,
+            threshold: 50,
+            jackpotTarget: 100,
+            winPointsFactor: 1,
+        },
     };
 }
 
@@ -154,19 +160,19 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
                 <div ng-if="effect.mode === 'Threshold'">
                     <div class="input-group" style="margin-top: 4px">
                         <span class="input-group-addon">Maximum Roll (inclusive)</span>
-                        <input type="number" min="0" step="1" ng-model="effect.modeThresholdMaxRoll" class="form-control">
+                        <input type="number" min="0" step="1" ng-model="effect.thresholdOptions.maxRoll" class="form-control">
                     </div>
                     <div class="input-group" style="margin-top: 4px">
                         <span class="input-group-addon">Threshold Win/Lose</span>
-                        <input type="number" min="0" step="1" ng-model="effect.modeThresholdThreshold" class="form-control">
+                        <input type="number" min="0" step="1" ng-model="effect.thresholdOptions.threshold" class="form-control">
                     </div>
                     <div class="input-group" style="margin-top: 4px">
                         <span class="input-group-addon">Jackpot Target Roll</span>
-                        <input type="number" min="0" step="1" ng-model="effect.modeThresholdJackpotTarget" class="form-control">
+                        <input type="number" min="0" step="1" ng-model="effect.thresholdOptions.jackpotTarget" class="form-control">
                     </div>
                     <div class="input-group" style="margin-top: 4px">
                         <span class="input-group-addon">Won Points Multiplicator</span>
-                        <input type="number" min="0" step="1" ng-model="effect.modeThresholdWinPointsFactor" class="form-control">
+                        <input type="number" min="0" step="1" ng-model="effect.thresholdOptions.winPointsFactor" class="form-control">
                     </div>
                 </div>
             </eos-container>
@@ -195,37 +201,15 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
                 return null;
             };
 
+            const eff = $scope.effect;
             const def = defaultParams();
-            if (!$scope.effect.minimumEntry) {
-                $scope.effect.minimumEntry = def.minimumEntry;
-            }
-            if (!$scope.effect.jackpotPercent) {
-                $scope.effect.jackpotPercent = def.jackpotPercent;
-            }
-            if (!$scope.effect.messageJackpotWon) {
-                $scope.effect.messageJackpotWon = def.messageJackpotWon;
-            }
-            if (!$scope.effect.messageLost) {
-                $scope.effect.messageLost = def.messageLost;
-            }
-            if (!$scope.effect.messageWon) {
-                $scope.effect.messageWon = def.messageWon;
-            }
-            if (!$scope.effect.messageEntryBelowMinimum) {
-                $scope.effect.messageEntryBelowMinimum = def.messageEntryBelowMinimum;
-            }
-            if (!$scope.effect.modeThresholdMaxRoll) {
-                $scope.effect.modeThresholdMaxRoll = def.modeThresholdMaxRoll;
-            }
-            if (!$scope.effect.modeThresholdThreshold) {
-                $scope.effect.modeThresholdThreshold = def.modeThresholdThreshold;
-            }
-            if (!$scope.effect.modeThresholdJackpotTarget) {
-                $scope.effect.modeThresholdJackpotTarget = def.modeThresholdJackpotTarget;
-            }
-            if (!$scope.effect.modeThresholdWinPointsFactor) {
-                $scope.effect.modeThresholdWinPointsFactor = def.modeThresholdWinPointsFactor;
-            }
+            eff.minimumEntry ??= def.minimumEntry;
+            eff.jackpotPercent ??= def.jackpotPercent;
+            eff.messageJackpotWon ??= def.messageJackpotWon;
+            eff.messageLost ??= def.messageLost;
+            eff.messageWon ??= def.messageWon;
+            eff.messageEntryBelowMinimum ??= def.messageEntryBelowMinimum;
+            eff.thresholdOptions ??= def.thresholdOptions;
         },
 
         optionsValidator: (effect: Params): string[] => {
@@ -248,12 +232,7 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             let gambleMode;
             switch (event.effect.mode) {
                 case 'Threshold':
-                    gambleMode = new GambleModeThreshold({
-                        maxRoll: event.effect.modeThresholdMaxRoll,
-                        threshold: event.effect.modeThresholdThreshold,
-                        jackpotTarget: event.effect.modeThresholdJackpotTarget,
-                        winPointsFactor: event.effect.modeThresholdWinPointsFactor,
-                    });
+                    gambleMode = new GambleModeThreshold(event.effect.thresholdOptions);
                     break;
                 case 'Percentage Linear':
                 default:
