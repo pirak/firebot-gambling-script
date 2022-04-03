@@ -1,4 +1,5 @@
 import { NumRange } from './util/range';
+import { Range } from '../gamble-effect';
 
 /**
  * Describes a number range in which the player wins their gambled points amount
@@ -13,6 +14,15 @@ export class WinRange {
         this.range = range;
         this.jackpot = jackpot;
         this.multiplier = multiplier;
+    }
+
+    public static fromRange(range: Range): WinRange {
+        const numRange = new NumRange(range.from, range.to);
+        if (range.rangeType === 'Jackpot') {
+            return WinRange.jackpot(numRange);
+        } else {
+            return WinRange.regular(numRange, range.mult!);
+        }
     }
 
     public static jackpot(range: NumRange): WinRange {
