@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+//
+// SPDX-License-Identifier: EUPL-1.2
+import { Range } from '../gamble-effect';
 import { NumRange } from './util/range';
 
 /**
@@ -13,6 +17,15 @@ export class WinRange {
         this.range = range;
         this.jackpot = jackpot;
         this.multiplier = multiplier;
+    }
+
+    public static fromRange(range: Range): WinRange {
+        const numRange = new NumRange(range.from, range.to);
+        if (range.rangeType === 'Jackpot') {
+            return WinRange.jackpot(numRange);
+        } else {
+            return WinRange.regular(numRange, range.mult!);
+        }
     }
 
     public static jackpot(range: NumRange): WinRange {

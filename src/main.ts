@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
 //
 // SPDX-License-Identifier: EUPL-1.2
-import { buildGambleEffect } from './gamble-effect';
 import { CustomScriptManifest, DefaultParametersConfig, Firebot, RunRequest } from 'firebot-custom-scripts-types';
+
+import { buildGambleEffect } from './gamble-effect';
 
 const scriptVersion = '1.0.1';
 

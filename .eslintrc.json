@@ -16,9 +16,11 @@
     },
     "plugins": [
         "@typescript-eslint",
-        "jest"
+        "jest",
+        "simple-import-sort"
     ],
     "rules": {
+        "simple-import-sort/imports": "warn",
         "@typescript-eslint/no-unused-vars": [
             "warn",
             {

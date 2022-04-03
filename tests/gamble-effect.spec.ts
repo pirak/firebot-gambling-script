@@ -1,6 +1,12 @@
 // SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
 //
 // SPDX-License-Identifier: EUPL-1.2
+import { RunRequest } from 'firebot-custom-scripts-types';
+import { Effects } from 'firebot-custom-scripts-types/types/effects';
+import { Counter } from 'firebot-custom-scripts-types/types/modules/counter-manager';
+import { CurrencyAdjustType } from 'firebot-custom-scripts-types/types/modules/currency-db';
+import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
+
 import { buildGambleEffect, defaultParams, handle, Params } from '../src/gamble-effect';
 import { GambleHandler } from '../src/gamble-handler';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
@@ -9,11 +15,6 @@ import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/eff
 import { ScriptParams } from '../src/main';
 import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
 import { mockExpectedRoll, replaceMessageParams } from './helpers';
-import { RunRequest } from 'firebot-custom-scripts-types';
-import { Effects } from 'firebot-custom-scripts-types/types/effects';
-import { Counter } from 'firebot-custom-scripts-types/types/modules/counter-manager';
-import { CurrencyAdjustType } from 'firebot-custom-scripts-types/types/modules/currency-db';
-import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
 
 import Trigger = Effects.Trigger;
 

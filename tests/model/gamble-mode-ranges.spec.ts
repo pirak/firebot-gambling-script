@@ -1,8 +1,11 @@
+// SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+//
+// SPDX-License-Identifier: EUPL-1.2
 import { GambleModeRanges, RangeError } from '../../src/model/gamble-mode-ranges';
-import { WinRange } from '../../src/model/win-range';
-import { NumRange } from '../../src/model/util/range';
-import { mockExpectedRoll } from '../helpers';
 import { GambleResult, GambleResultType } from '../../src/model/gamble-result';
+import { NumRange } from '../../src/model/util/range';
+import { WinRange } from '../../src/model/win-range';
+import { mockExpectedRoll } from '../helpers';
 
 describe('The Gambling Mode Ranges', () => {
     const defaultRanges = [

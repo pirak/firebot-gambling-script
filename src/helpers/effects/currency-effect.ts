@@ -1,10 +1,11 @@
 // SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
 //
 // SPDX-License-Identifier: EUPL-1.2
-import { ScriptParams } from '../../main';
-import { CustomEffect } from './custom-effect';
 import { RunRequest } from 'firebot-custom-scripts-types';
 import { Effects } from 'firebot-custom-scripts-types/types/effects';
+
+import { ScriptParams } from '../../main';
+import { CustomEffect } from './custom-effect';
 
 import Effect = Effects.Effect;
 import KnownEffectType = Effects.KnownEffectType;
