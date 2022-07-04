@@ -105,7 +105,7 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             triggers: {
                 command: true,
             },
-            dependencies: [],
+            dependencies: ['chat'],
         },
 
         optionsTemplate: `
@@ -211,16 +211,32 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
                                     </ui-select-choices>
                                 </ui-select>
                             </td>
-                            <td><input class="form-control" type="number" min="0" step="1" style="width: 7em;" ng-model="range.from"></td>
-                            <td><input class="form-control" type="number" min="0" step="1" style="width: 7em;" ng-model="range.to"></td>
-                            <td><input class="form-control" type="number" style="width: 7em;" ng-disabled="range.rangeType === 'Jackpot'" ng-model="range.mult"></td>
+                            <td><input class="form-control" type="number" min="0" step="1" style="width: 7em;" ng-model="range.from" ng-change="validateRangesOptions()"></td>
+                            <td><input class="form-control" type="number" min="0" step="1" style="width: 7em;" ng-model="range.to" ng-change="validateRangesOptions()"></td>
+                            <td><input class="form-control" type="number" style="width: 7em;" ng-disabled="range.rangeType === 'Jackpot'" ng-model="range.mult" ng-change="validateRangesOptions()"></td>
                         </tr>
                     </table>
+                    <div>
+                      {{ rangeErrors }}
+                        <!--
+                        <ul>
+                            <li ng-repeat="err in rangeErrors">
+                                <span>{{ err }}</span>
+                            </li>
+                        </ul>
+                        -->
+                    </div>
                 </div>
             </eos-container>
         `,
 
-        optionsController: ($scope: Scope, currencyService: any, countersService: any) => {
+        optionsController: (
+            $scope: Scope,
+            $q: any,
+            backendCommunicator: any,
+            currencyService: any,
+            countersService: any,
+        ) => {
             $scope.counters = countersService.counters ?? ([] as Array<Counter>);
             $scope.currencies = currencyService.getCurrencies() ?? ([] as Array<Currency>);
             $scope.modes = ['Percentage Linear', 'Threshold', 'Ranges'];
@@ -263,6 +279,24 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
                     eff.ranges.pop();
                 }
             };
+
+            $scope.rangeErrors = [];
+
+            $scope.validateRangesOptions = () => {
+                if ($scope.effect.mode !== 'Ranges') {
+                    $scope.rangeErrors = [];
+                } else {
+                    // ToDo: Why are they [null, {}]?
+                    $scope.rangeErrors = [$q, backendCommunicator];
+                    /*
+                    $q.when(backendCommunicator.fireEventAsync(EventNames.VALIDATE_INPUT, $scope.effect.ranges)).then(
+                        (errors: string[]) => {
+                            $scope.rangeErrors = errors;
+                        },
+                    );
+                     */
+                }
+            };
         },
 
         optionsValidator: (effect: Params): string[] => {
@@ -276,10 +310,6 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             }
             if (!effect.mode) {
                 errors.push('Please select a gambling mode!');
-            }
-
-            if (effect.mode === 'Ranges') {
-                errors.push(...validateRangesOptions(effect));
             }
 
             return errors;
@@ -312,116 +342,12 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
     };
 }
 
-function validateRangesOptions(effect: Params): string[] {
-    const errors: Array<string> = [];
-
-    if (effect.ranges.length < 1) {
-        return ['At least one range must be defined.'];
-    }
-
-    effect.ranges.forEach(({ from, to, mult, rangeType }) => {
-        if (from < 0 || to < 0) {
-            errors.push('Ranges must only contain numbers >= 0.');
-        }
-        if (rangeType === 'Normal' && (mult === null || mult === undefined)) {
-            errors.push("Multiplier must be set for all ranges of type 'Normal'.");
-        }
-        if (rangeType !== 'Normal' && rangeType !== 'Jackpot') {
-            errors.push(`Unknown range type: ${rangeType}`);
-        }
-    });
-
-    const ranges = sortedRanges(effect.ranges);
-    errors.push(ranges.toString());
-
-    /*
-    if (anyRangesOverlap(ranges)) {
-        errors.push('The ranges must not overlap.');
-    }*/
-
-    /*
-    const min = ranges[0].from;
-    const max = ranges[ranges.length - 1].to;
-    if (!coverFullRange(min, max, ranges)) {
-        errors.push('There must not be gaps between the ranges.');
-    }*/
-
-    return errors;
-}
-
 export type Range = {
     from: number;
     to: number;
     mult?: number;
     rangeType: string;
 };
-
-function sortedRanges(ranges: Array<Range>): Array<Range> {
-    return [...ranges];
-    /*
-        .map(({ from, to, mult, rangeType }) => {
-            return {
-                from: Math.min(from, to),
-                to: Math.max(from, to),
-                mult,
-                rangeType,
-            };
-        });
-        .sort((r1: Range, r2: Range) => {
-            if (r1.from < r2.from) {
-                return -1;
-            } else {
-                return r1.to - r2.to;
-            }
-        });*/
-}
-
-export function anyRangesOverlap(ranges: Array<Range>): boolean {
-    for (let i = 0; i < ranges.length; ++i) {
-        for (let j = i + 1; j < ranges.length; ++j) {
-            if (rangesOverlap(ranges[i], ranges[j])) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-function rangesOverlap(r1: Range, r2: Range): boolean {
-    return r1.from <= r2.to && r1.to >= r2.from;
-}
-
-export function coverFullRange(from: number, to: number, ranges: Array<Range>): boolean {
-    const filtered = sortedRanges([...ranges]).reduce((acc: Range[], next: Range) => {
-        // only keep the ranges that are not fully included in other ones
-        if (acc.length === 0) {
-            return [next];
-        } else if (includes(acc[acc.length - 1], next)) {
-            return acc;
-        } else {
-            acc.push(next);
-            return acc;
-        }
-    }, []);
-    const min = filtered[0].from;
-    const max = filtered[filtered.length - 1].to;
-
-    let hasGaps = false;
-    for (let i = 0; i < filtered.length - 1 && !hasGaps; ++i) {
-        const curr = filtered[i];
-        const next = filtered[i + 1];
-
-        const gapToNext = !(curr.to >= next.from - 1);
-        hasGaps = hasGaps || gapToNext;
-    }
-
-    return min <= from && max >= to && !hasGaps;
-}
-
-function includes(r1: Range, r2: Range): boolean {
-    return r1.from <= r2.from && r1.to >= r2.to;
-}
 
 export async function handle(
     scriptModules: ScriptModules,
