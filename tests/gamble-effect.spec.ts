@@ -146,7 +146,13 @@ function runRequestBuilder(): RunRequest<ScriptParams> {
     return runRequest;
 }
 
-function effectTriggerBuilder(username: string, args: string[]): { effect: Params; trigger: Trigger } {
+type EffectTrigger = {
+    effect: Params;
+    trigger: Trigger;
+    sendDataToOverlay: (data: unknown, overlayInstance?: string) => void;
+};
+
+function effectTriggerBuilder(username: string, args: string[]): EffectTrigger {
     const params = defaultParams();
     return {
         effect: params,
@@ -160,6 +166,7 @@ function effectTriggerBuilder(username: string, args: string[]): { effect: Param
                 },
             },
         },
+        sendDataToOverlay: (x, y) => {},
     };
 }
 

@@ -3,7 +3,7 @@ import { buildGambleEffect } from './gamble-effect';
 
 const scriptVersion = '1.0.1';
 
-export interface ScriptParams {}
+export interface ScriptParams extends Record<string, unknown> {}
 
 export class GamblingScript implements Firebot.CustomScript<ScriptParams> {
     public getDefaultParameters(): DefaultParametersConfig<ScriptParams> {
