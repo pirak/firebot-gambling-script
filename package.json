@@ -35,7 +35,7 @@
     "eslint-plugin-prettier": "4.2.1",
     "firebot-custom-scripts-types": "pirak/firebot-custom-scripts-types#export-additional-types",
     "jest": "27.5.1",
-    "jest-junit": "14.0.0",
+    "jest-junit": "14.0.1",
     "prettier": "2.7.1",
     "regenerator-runtime": "0.13.9",
     "terser-webpack-plugin": "5.3.3",
