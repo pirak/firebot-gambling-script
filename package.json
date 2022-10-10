@@ -33,7 +33,7 @@
     "eslint-plugin-jest": "26.6.0",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-prettier": "4.2.1",
-    "firebot-custom-scripts-types": "crowbartools/firebot-custom-scripts-types#main",
+    "firebot-custom-scripts-types": "pirak/firebot-custom-scripts-types#export-additional-types",
     "jest": "27.5.1",
     "jest-junit": "14.0.0",
     "prettier": "2.7.1",
