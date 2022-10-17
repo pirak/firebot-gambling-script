@@ -37,7 +37,7 @@
     "jest": "27.5.1",
     "jest-junit": "14.0.1",
     "prettier": "2.7.1",
-    "regenerator-runtime": "0.13.9",
+    "regenerator-runtime": "0.13.10",
     "terser-webpack-plugin": "5.3.6",
     "ts-jest": "27.1.4",
     "ts-loader": "9.3.1",
