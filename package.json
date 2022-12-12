@@ -36,7 +36,7 @@
     "firebot-custom-scripts-types": "pirak/firebot-custom-scripts-types#export-additional-types",
     "jest": "27.5.1",
     "jest-junit": "15.0.0",
-    "prettier": "2.8.0",
+    "prettier": "2.8.1",
     "regenerator-runtime": "0.13.11",
     "terser-webpack-plugin": "5.3.6",
     "ts-jest": "27.1.4",
