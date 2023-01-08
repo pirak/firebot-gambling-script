@@ -154,7 +154,8 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             eff.messageEntryBelowMinimum ??= def.messageEntryBelowMinimum;
             eff.thresholdOptions ??= def.thresholdOptions;
             eff.ranges ??= def.ranges;
-            eff.numRanges ??= def.ranges.length;
+            eff.numRanges ??= eff.ranges.length;
+            eff.rangeErrors ??= [];
 
             $scope.numRangesChange = () => {
                 if (eff.numRanges > eff.ranges.length) {
