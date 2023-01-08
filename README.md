@@ -108,13 +108,14 @@ E.g., you can set it so that the user
 
 - loses the entered points on a roll between 0 and 25 (multiplier -1),
 - no points change between 26 and 41 (multiplier 0),
-- the jackpot is won on 42,
+- the jackpot is won on 42 (range from 42 to 42),
 - no points change between 43 and 75, and
 - the user wins double the entered points between 76 and 100.
 
 The ranges must not overlap, and there must not be any gaps.
 They do not have to start at 0 and end at 100, though.
-Setting a value for the Jackpot is optional.
+Setting a range for the Jackpot is optional.
+It is possible to set the Jackpot for multiple values/ranges.
 
 
 ## Usage
