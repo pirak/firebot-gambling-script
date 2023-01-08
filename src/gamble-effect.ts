@@ -40,7 +40,7 @@ export interface Params {
 
     thresholdOptions: ThresholdOptions;
 
-    numRanges: number,
+    numRanges: number;
     ranges: Array<Range>;
     rangeErrors: Array<string>;
 }

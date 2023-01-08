@@ -15,7 +15,14 @@ export enum RangeError {
 }
 
 /**
- * ToDo: explain game mode
+ * Allows the definition of multiple ranges that each have a different multiplier
+ * for the won points.
+ * <p>
+ * E.g., this allows the definition of ranges
+ * - [0, 49), mult: -1, rangeType: 'Normal' => user loses their entered points
+ * - [50], mult: 0, rangeType: 'Normal' => user gets back their points
+ * - [51, 99), mult: 1, rangeType: 'Normal' => user wins the amount of entered points
+ * - [100], rangeType: 'Jackpot' => user wins the jackpot.
  */
 export class GambleModeRanges implements GambleMode {
     private readonly winRanges: Array<WinRange>;
