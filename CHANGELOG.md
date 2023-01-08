@@ -7,7 +7,7 @@ SPDX-License-Identifier: EUPL-1.2
 # Changelog
 
 ## Unreleased
-- …
+- Feature: add new range mode (#397)
 
 ## v1.0.1
 - Fix: counter that stores the jackpot is not selectable during effect
