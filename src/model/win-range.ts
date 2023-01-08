@@ -24,7 +24,7 @@ export class WinRange {
         if (range.rangeType === 'Jackpot') {
             return WinRange.jackpot(numRange);
         } else {
-            return WinRange.regular(numRange, range.mult!);
+            return WinRange.regular(numRange, range.mult ?? 0);
         }
     }
 

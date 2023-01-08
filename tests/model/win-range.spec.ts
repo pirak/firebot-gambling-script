@@ -5,6 +5,30 @@ import { NumRange } from '../../src/model/util/range';
 import { WinRange } from '../../src/model/win-range';
 
 describe('WinRange', () => {
+    it('should be creatable from a jackpot range', () => {
+        const range = { from: 2, to: 5, rangeType: 'Jackpot' };
+        const r1 = WinRange.fromRange(range);
+
+        const expected = WinRange.jackpot(new NumRange(2, 5));
+        expect(r1).toEqual(expected);
+    });
+
+    it('should be creatable from a regular range with multiplier', () => {
+        const range = { from: 1, to: 5, rangeType: 'Normal' };
+        const r1 = WinRange.fromRange(range);
+
+        const expected = WinRange.regular(new NumRange(1, 5), 0);
+        expect(r1).toEqual(expected);
+    });
+
+    it('should be creatable from a regular range', () => {
+        const range = { from: 2, to: 10, rangeType: 'Normal', mult: 3 };
+        const r1 = WinRange.fromRange(range);
+
+        const expected = WinRange.regular(new NumRange(2, 10), 3);
+        expect(r1).toEqual(expected);
+    });
+
     it('should mark if any ranges overlap', () => {
         const r1 = WinRange.regular(new NumRange(0, 3), 1);
         const r2 = WinRange.jackpot(new NumRange(3, 10));
