@@ -89,7 +89,7 @@ export class GambleModeRanges implements GambleMode {
 
     private getWinningsRegular(result: WinRange, gamblingAmount: number, roll: number) {
         let resultType: GambleResultType;
-        if (result.multiplier! === 0) {
+        if (result.multiplier === 0) {
             resultType = GambleResultType.Neutral;
         } else if (result.multiplier! > 0) {
             resultType = GambleResultType.Won;

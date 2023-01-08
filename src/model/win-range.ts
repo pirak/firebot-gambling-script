@@ -89,7 +89,7 @@ export class WinRange {
             const curr = sortedRanges[i].range;
             const next = sortedRanges[i + 1].range;
 
-            const gapToNext = !(curr.to >= next.from - 1);
+            const gapToNext = curr.to < next.from - 1;
             hasGaps = hasGaps || gapToNext;
         }
 
