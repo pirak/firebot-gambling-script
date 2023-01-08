@@ -1,7 +1,8 @@
-import { RunRequest } from 'firebot-custom-scripts-types';
-import { CustomEffect } from './custom-effect';
 import { ScriptParams } from '../../main';
+import { CustomEffect } from './custom-effect';
+import { RunRequest } from 'firebot-custom-scripts-types';
 import { Effects } from 'firebot-custom-scripts-types/types/effects';
+
 import KnownEffectType = Effects.KnownEffectType;
 import Effect = Effects.Effect;
 

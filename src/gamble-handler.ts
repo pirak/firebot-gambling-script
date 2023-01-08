@@ -1,11 +1,11 @@
+import { Params } from './gamble-effect';
+import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
+import { CurrencyEffect, CurrencyAction } from './helpers/effects/currency-effect';
+import { CustomEffect } from './helpers/effects/custom-effect';
+import { UpdateCounterEffect, UpdateCounterEffectMode } from './helpers/effects/update-counter-effect';
 import { GambleEntry } from './model/gamble-entry';
 import { GambleMode } from './model/gamble-mode';
 import { GambleResult, GambleResultType } from './model/gamble-result';
-import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
-import { CurrencyEffect, CurrencyAction } from './helpers/effects/currency-effect';
-import { UpdateCounterEffect, UpdateCounterEffectMode } from './helpers/effects/update-counter-effect';
-import { CustomEffect } from './helpers/effects/custom-effect';
-import { Params } from './gamble-effect';
 import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
 
 export class GambleHandler {

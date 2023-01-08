@@ -1,13 +1,13 @@
+import { defaultParams, Params } from '../src/gamble-effect';
 import { GambleHandler } from '../src/gamble-handler';
-import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
-import { ArgumentsOf, mockExpectedRoll, replaceMessageParams } from './helpers';
-import { ScriptModules } from 'firebot-custom-scripts-types';
-import { GambleResult, GambleResultType } from '../src/model/gamble-result';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
 import { CurrencyAction, CurrencyEffect } from '../src/helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
 import { GambleEntry } from '../src/model/gamble-entry';
-import { defaultParams, Params } from '../src/gamble-effect';
+import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
+import { GambleResult, GambleResultType } from '../src/model/gamble-result';
+import { ArgumentsOf, mockExpectedRoll, replaceMessageParams } from './helpers';
+import { ScriptModules } from 'firebot-custom-scripts-types';
 
 const mockLogger = {
     info: jest.fn<void, ArgumentsOf<ScriptModules['logger']['info']>>(),

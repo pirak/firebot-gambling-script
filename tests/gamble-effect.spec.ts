@@ -1,16 +1,17 @@
 import { buildGambleEffect, defaultParams, handle, Params } from '../src/gamble-effect';
-import { RunRequest } from 'firebot-custom-scripts-types';
-import { ScriptParams } from '../src/main';
 import { GambleHandler } from '../src/gamble-handler';
-import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
-import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
-import { mockExpectedRoll, replaceMessageParams } from './helpers';
 import { CurrencyAction, CurrencyEffect } from '../src/helpers/effects/currency-effect';
 import { UpdateCounterEffect, UpdateCounterEffectMode } from '../src/helpers/effects/update-counter-effect';
-import { Counter } from 'firebot-custom-scripts-types/types/modules/counter-manager';
+import { ScriptParams } from '../src/main';
+import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
+import { mockExpectedRoll, replaceMessageParams } from './helpers';
+import { RunRequest } from 'firebot-custom-scripts-types';
 import { Effects } from 'firebot-custom-scripts-types/types/effects';
+import { Counter } from 'firebot-custom-scripts-types/types/modules/counter-manager';
 import { CurrencyAdjustType } from 'firebot-custom-scripts-types/types/modules/currency-db';
+import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
+
 import Trigger = Effects.Trigger;
 
 const currencyId = '7b9ac050-a096-11eb-9ce3-69b33571b547';
@@ -166,7 +167,7 @@ function effectTriggerBuilder(username: string, args: string[]): EffectTrigger {
                 },
             },
         },
-        sendDataToOverlay: (x, y) => {},
+        sendDataToOverlay: () => {},
     };
 }
 

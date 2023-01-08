@@ -1,14 +1,15 @@
-import { Firebot, RunRequest, ScriptModules } from 'firebot-custom-scripts-types';
-import { ScriptParams } from './main';
-import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
-import { GambleEntry } from './model/gamble-entry';
 import { GambleHandler } from './gamble-handler';
-import { GambleModePercentage } from './model/gamble-mode-percentage';
+import { ChatMessageEffect } from './helpers/effects/chat-message-effect';
 import { CustomEffect } from './helpers/effects/custom-effect';
+import { ScriptParams } from './main';
+import { GambleEntry } from './model/gamble-entry';
+import { GambleModePercentage } from './model/gamble-mode-percentage';
 import { GambleModeThreshold } from './model/gamble-mode-threshold';
+import { Firebot, RunRequest, ScriptModules } from 'firebot-custom-scripts-types';
 import { Effects } from 'firebot-custom-scripts-types/types/effects';
 import { Currency } from 'firebot-custom-scripts-types/types/modules/currency-db';
 import { Logger } from 'firebot-custom-scripts-types/types/modules/logger';
+
 import EffectCategory = Effects.EffectCategory;
 import Trigger = Effects.Trigger;
 

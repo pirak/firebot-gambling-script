@@ -1,6 +1,6 @@
 import { GambleModeThreshold } from '../../src/model/gamble-mode-threshold';
-import { mockExpectedRoll } from '../helpers';
 import { GambleResult, GambleResultType } from '../../src/model/gamble-result';
+import { mockExpectedRoll } from '../helpers';
 
 describe('The Gambling Mode Threshold', () => {
     const gambleMode = new GambleModeThreshold({ maxRoll: 100, threshold: 60, jackpotTarget: 70, winPointsFactor: 3 });

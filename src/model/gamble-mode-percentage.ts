@@ -1,6 +1,6 @@
+import { Rand } from '../helpers/rand';
 import { GambleMode } from './gamble-mode';
 import { GambleResult, GambleResultType } from './gamble-result';
-import { Rand } from '../helpers/rand';
 
 export class GambleModePercentage implements GambleMode {
     private readonly maxRoll: number = 100;

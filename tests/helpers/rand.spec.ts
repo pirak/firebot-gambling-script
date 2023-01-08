@@ -1,5 +1,5 @@
-import { resetRndRandIntInclusive } from '../helpers';
 import { Rand } from '../../src/helpers/rand';
+import { resetRndRandIntInclusive } from '../helpers';
 
 describe('The random number generator', () => {
     resetRndRandIntInclusive();
