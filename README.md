@@ -97,6 +97,25 @@ You can set the target to a value that can not be rolled in a regular game
 Jackpot.
 
 
+### Ranges
+
+This is an extension of the Threshold/Bigger Than Target mode, where multiple
+targets can be defined.
+You can define a list of custom ranges with custom multipliers
+(See the other mode above for an explanation of the multiplier value).
+
+E.g., you can set it so that the user
+
+- loses the entered points on a roll between 0 and 25 (multiplier -1),
+- no points change between 26 and 41 (multiplier 0),
+- the jackpot is won on 42,
+- no points change between 43 and 75, and
+- the user wins double the entered points between 76 and 100.
+
+The ranges must not overlap, and there must not be any gaps.
+They do not have to start at 0 and end at 100, though.
+Setting a value for the Jackpot is optional.
+
 
 ## Usage
 
@@ -124,6 +143,6 @@ See the Licence for the specific language governing permissions and
 limitations under the Licence.
 
 
-
+<!-- links -->
 [firebot]: https://github.com/crowbartools/Firebot
 [releases]: https://github.com/pirak/firebot-gambling-script/releases
