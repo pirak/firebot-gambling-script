@@ -121,8 +121,6 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             currencyService: any,
             countersService: any,
         ) => {
-            $scope.debugMessages = [];
-
             $scope.counters = countersService.counters ?? ([] as Array<Counter>);
             $scope.currencies = currencyService.getCurrencies() ?? ([] as Array<Currency>);
             $scope.modes = ['Percentage Linear', 'Threshold', 'Ranges'];
@@ -425,7 +423,6 @@ const optionsTemplate = `
                         <span>{{ err }}</span>
                     </li>
                 </ul>
-                {{ debugMessages }}
             </div>
         </div>
     </eos-container>
