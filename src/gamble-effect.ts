@@ -40,6 +40,7 @@ export interface Params {
 
     thresholdOptions: ThresholdOptions;
 
+    numRanges: number,
     ranges: Array<Range>;
     rangeErrors: Array<string>;
 }
@@ -75,6 +76,7 @@ export function defaultParams(): Params {
             winPointsFactor: 1,
         },
 
+        numRanges: 4,
         ranges: [
             { from: 0, to: 49, mult: -1, rangeType: 'Normal' },
             { from: 50, to: 50, mult: 0, rangeType: 'Normal' },
@@ -119,6 +121,8 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             currencyService: any,
             countersService: any,
         ) => {
+            $scope.debugMessages = [];
+
             $scope.counters = countersService.counters ?? ([] as Array<Counter>);
             $scope.currencies = currencyService.getCurrencies() ?? ([] as Array<Currency>);
             $scope.modes = ['Percentage Linear', 'Threshold', 'Ranges'];
@@ -152,12 +156,12 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             eff.messageEntryBelowMinimum ??= def.messageEntryBelowMinimum;
             eff.thresholdOptions ??= def.thresholdOptions;
             eff.ranges ??= def.ranges;
+            eff.numRanges ??= def.ranges.length;
 
-            $scope.numRanges = eff.ranges.length;
             $scope.numRangesChange = () => {
-                if ($scope.numRanges > eff.ranges.length) {
+                if (eff.numRanges > eff.ranges.length) {
                     eff.ranges.push({ from: 0, to: 0, mult: 1, rangeType: 'Normal' });
-                } else if ($scope.numRanges < eff.ranges.length) {
+                } else if (eff.numRanges < eff.ranges.length) {
                     eff.ranges.pop();
                 }
             };
@@ -334,29 +338,29 @@ const optionsTemplate = `
     </eos-container>
     <eos-container header="Common Parameters">
         <div class="input-group">
-            <span class="input-group-addon" id="minimum-entry-type">Minimum Amount</span>
+            <label for="minimum-entry-setting" class="input-group-addon" id="minimum-entry-type">Minimum Amount</label>
             <input type="number" min="0" step="1" ng-model="effect.minimumEntry" class="form-control" id="minimum-entry-setting">
         </div>
         <div class="input-group" style="margin-top: 4px">
-            <span class="input-group-addon" id="jackpot-percent-type">Jackpot Percent</span>
+            <label for="jackpot-percent-setting" class="input-group-addon" id="jackpot-percent-type">Jackpot Percent</label>
             <input type="number" min="0" step="1" ng-model="effect.jackpotPercent" class="form-control" id="jackpot-percent-setting">
         </div>
     </eos-container>
     <eos-container header="Messages">
         <div class="input-group">
-            <span class="input-group-addon" id="message-won-type">Won</span>
+            <label class="input-group-addon" id="message-won-type">Won</label>
             <textarea ng-model="effect.messageWon" class="form-control" name="text" rows="2" replace-variables menu-position="under"></textarea>
         </div>
         <div class="input-group" style="margin-top: 4px">
-            <span class="input-group-addon" id="message-jackpot-won-type">Jackpot Won</span>
+            <label class="input-group-addon" id="message-jackpot-won-type">Jackpot Won</label>
             <textarea ng-model="effect.messageJackpotWon" class="form-control" name="text" rows="2" replace-variables menu-position="under"></textarea>
         </div>
         <div class="input-group" style="margin-top: 4px">
-            <span class="input-group-addon" id="message-lost-type">Lost</span>
+            <label class="input-group-addon" id="message-lost-type">Lost</label>
             <textarea ng-model="effect.messageLost" class="form-control" name="text" rows="2" replace-variables menu-position="under"></textarea>
         </div>
         <div class="input-group" style="margin-top: 4px">
-            <span class="input-group-addon" id="message-below-min-type">Entry Below Minimum</span>
+            <label class="input-group-addon" id="message-below-min-type">Entry Below Minimum</label>
             <textarea ng-model="effect.messageEntryBelowMinimum" class="form-control" name="text" rows="2" replace-variables menu-position="under"></textarea>
         </div>
     </eos-container>
@@ -373,26 +377,26 @@ const optionsTemplate = `
         </div>
         <div ng-if="effect.mode === 'Threshold'">
             <div class="input-group" style="margin-top: 4px">
-                <span class="input-group-addon">Maximum Roll (inclusive)</span>
+                <label class="input-group-addon">Maximum Roll (inclusive)</label>
                 <input type="number" min="0" step="1" ng-model="effect.thresholdOptions.maxRoll" class="form-control">
             </div>
             <div class="input-group" style="margin-top: 4px">
-                <span class="input-group-addon">Threshold Win/Lose</span>
+                <label class="input-group-addon">Threshold Win/Lose</label>
                 <input type="number" min="0" step="1" ng-model="effect.thresholdOptions.threshold" class="form-control">
             </div>
             <div class="input-group" style="margin-top: 4px">
-                <span class="input-group-addon">Jackpot Target Roll</span>
+                <label class="input-group-addon">Jackpot Target Roll</label>
                 <input type="number" min="0" step="1" ng-model="effect.thresholdOptions.jackpotTarget" class="form-control">
             </div>
             <div class="input-group" style="margin-top: 4px">
-                <span class="input-group-addon">Won Points Multiplicator</span>
+                <label class="input-group-addon">Won Points Multiplicator</label>
                 <input type="number" min="0" step="1" ng-model="effect.thresholdOptions.winPointsFactor" class="form-control">
             </div>
         </div>
         <div ng-if="effect.mode === 'Ranges'">
             <div class="input-group" style="margin-top: 4px;">
-                <span class="input-group-addon">Number of Ranges</span>
-                <input type="number" min="1" step="1" class="form-control" ng-model="numRanges" ng-change="numRangesChange()">
+                <label for="num-ranges" class="input-group-addon">Number of Ranges</label>
+                <input id="num-ranges" type="number" min="1" step="1" class="form-control" ng-model="effect.numRanges" ng-change="numRangesChange()">
             </div>
             <table class="fb-table">
                 <tr>
@@ -421,6 +425,7 @@ const optionsTemplate = `
                         <span>{{ err }}</span>
                     </li>
                 </ul>
+                {{ debugMessages }}
             </div>
         </div>
     </eos-container>
