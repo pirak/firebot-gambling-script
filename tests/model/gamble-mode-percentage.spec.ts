@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+//
+// SPDX-License-Identifier: EUPL-1.2
 import { GambleModePercentage } from '../../src/model/gamble-mode-percentage';
 import { GambleResult, GambleResultType } from '../../src/model/gamble-result';
 import { mockExpectedRoll } from '../helpers';

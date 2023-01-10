@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 export class Rand {
     /**
      * Generates a random integer in range [0, max] inclusive.

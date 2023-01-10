@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 ---
 name: Bug report
 about: Something with this script is not working as expected.

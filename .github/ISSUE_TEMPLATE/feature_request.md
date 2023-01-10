@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 ---
 name: Feature request
 about: Suggest an idea for this script.

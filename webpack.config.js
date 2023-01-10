@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
 const packageJson = require("./package.json");

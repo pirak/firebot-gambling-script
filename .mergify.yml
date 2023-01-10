@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+#
+# SPDX-License-Identifier: CC0-1.0
+
 pull_request_rules:
   - name: Automatic merge for Dependabot pull requests
     conditions:
