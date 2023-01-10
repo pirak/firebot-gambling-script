@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+//
+// SPDX-License-Identifier: EUPL-1.2
 import { defaultParams, Params } from '../src/gamble-effect';
 import { GambleHandler } from '../src/gamble-handler';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';

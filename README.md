@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+
+SPDX-License-Identifier: EUPL-1.2
+-->
+
 # Custom Gambling Script for Firebot
 
 A custom [Firebot][firebot] script that lets users gamble currency.

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+//
+// SPDX-License-Identifier: EUPL-1.2
 import { Rand } from '../src/helpers/rand';
 
 export type ArgumentsOf<F extends Function> = F extends (...args: infer A) => any ? A : never;

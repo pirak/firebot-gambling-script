@@ -1,2 +1,6 @@
+# SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+#
+# SPDX-License-Identifier: CC0-1.0
+
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
