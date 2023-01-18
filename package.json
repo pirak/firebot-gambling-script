@@ -18,7 +18,7 @@
     "prettier:check": "prettier --check '{src,tests}/**/*.{json,ts}'",
     "prettier:format": "prettier --write '{src,tests}/**/*.{json,ts}'",
     "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
+    "lint:fix": "npm run lint -- --fix",
     "update": "npm upgrade-interactive --latest"
   },
   "devDependencies": {
