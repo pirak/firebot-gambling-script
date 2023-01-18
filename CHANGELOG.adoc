@@ -1,0 +1,37 @@
+// SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+//
+// SPDX-License-Identifier: EUPL-1.2
+
+= Changelog
+
+
+== Unreleased
+* Add: new range mode (#397)
+* …
+
+
+== v1.0.1
+* Fix: counter that stores the jackpot is not selectable during effect configuration
+
+
+== v1.0.0
+* Refactor: Implement as startup script **needs Firebot v5.37.0 or newer** (#2, #3)
+* Add: Gamble Mode Threshold (#1, #4)
+
+
+== v0.1.3
+* Fix: percentage mode ignoring disabled jackpot setting
+
+
+== v0.1.2
+* Add: parameter to define the percentage of points that should be added to the jackpot.
+    Also enables disabling of the jackpot.
+
+
+== v0.1.1
+* Add: message when user tries to enter fewer than minimum amount of points
+
+
+== v0.1.0
+* Initial Release
+* Mode: linear distribution (`GambleModePercentage`)

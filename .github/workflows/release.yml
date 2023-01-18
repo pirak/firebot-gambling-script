@@ -30,8 +30,8 @@ jobs:
         sudo apt-get -y install zip
     - name: Create Release Zip
       run: |
-        cp README.md dist/
-        cp CHANGELOG.md dist/
+        cp README.adoc dist/
+        cp CHANGELOG.adoc dist/
         cp LICENSE dist/
         mv dist gambling-script
         md5sum gambling-script/*
