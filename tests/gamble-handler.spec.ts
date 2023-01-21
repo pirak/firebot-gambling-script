@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
 //
 // SPDX-License-Identifier: EUPL-1.2
+import { ScriptModules } from 'firebot-custom-scripts-types';
+
 import { defaultParams, Params } from '../src/gamble-effect';
 import { GambleHandler } from '../src/gamble-handler';
 import { ChatMessageEffect } from '../src/helpers/effects/chat-message-effect';
@@ -10,7 +12,6 @@ import { GambleEntry } from '../src/model/gamble-entry';
 import { GambleModePercentage } from '../src/model/gamble-mode-percentage';
 import { GambleResult, GambleResultType } from '../src/model/gamble-result';
 import { ArgumentsOf, mockExpectedRoll, replaceMessageParams } from './helpers';
-import { ScriptModules } from 'firebot-custom-scripts-types';
 
 const mockLogger = {
     info: jest.fn<void, ArgumentsOf<ScriptModules['logger']['info']>>(),

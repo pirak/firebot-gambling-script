@@ -21,7 +21,7 @@ export class GambleModePercentage implements GambleMode {
      * @param jackpotEnabled if disabled, the user wins gamblingAmount instead.
      */
     winnings(gamblingAmount: number, jackpotEnabled: boolean = true): GambleResult {
-        const roll = Rand.randIntInclusive(this.maxRoll);
+        const roll = Rand.randIntInclusive(0, this.maxRoll);
 
         if (roll === this.neutralValue) {
             return new GambleResult(GambleResultType.Neutral, this.neutralValue);

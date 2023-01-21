@@ -8,13 +8,13 @@ import { mockExpectedRoll } from '../helpers';
 describe('The Gambling Mode Threshold', () => {
     const gambleMode = new GambleModeThreshold({ maxRoll: 100, threshold: 60, jackpotTarget: 70, winPointsFactor: 3 });
 
-    it('should return the jackpot if enabled and rolled', async () => {
+    it('should return the jackpot if enabled and rolled', () => {
         mockExpectedRoll(70);
         const expected = new GambleResult(GambleResultType.Jackpot, 70);
         expect(gambleMode.winnings(200, true)).toEqual(expected);
     });
 
-    it('should return the regular value instead of the jackpot if disabled', async () => {
+    it('should return the regular value instead of the jackpot if disabled', () => {
         // winning roll
         mockExpectedRoll(70);
         const expected = new GambleResult(GambleResultType.Won, 70, 600);
@@ -32,7 +32,7 @@ describe('The Gambling Mode Threshold', () => {
         expect(gambleMode2.winnings(200, false)).toEqual(expected2);
     });
 
-    it('should return a neutral result if exactly the threshold is rolled', async () => {
+    it('should return a neutral result if exactly the threshold is rolled', () => {
         const expected = new GambleResult(GambleResultType.Neutral, 60, 0);
 
         mockExpectedRoll(60);
@@ -41,7 +41,7 @@ describe('The Gambling Mode Threshold', () => {
         expect(gambleMode.winnings(200, false)).toEqual(expected);
     });
 
-    it('should return the jackpot if enabled and target identical to threshold', async () => {
+    it('should return the jackpot if enabled and target identical to threshold', () => {
         const gambleMode = new GambleModeThreshold({
             maxRoll: 100,
             threshold: 60,
@@ -54,7 +54,7 @@ describe('The Gambling Mode Threshold', () => {
         expect(gambleMode.winnings(200, true)).toEqual(expected);
     });
 
-    it('should return a neutral result if jackpot disabled and target identical to threshold', async () => {
+    it('should return a neutral result if jackpot disabled and target identical to threshold', () => {
         const gambleMode = new GambleModeThreshold({
             maxRoll: 100,
             threshold: 60,
@@ -67,7 +67,7 @@ describe('The Gambling Mode Threshold', () => {
         expect(gambleMode.winnings(200, false)).toEqual(expected);
     });
 
-    it('should return a losing result if the roll is smaller than the threshold', async () => {
+    it('should return a losing result if the roll is smaller than the threshold', () => {
         const expected = new GambleResult(GambleResultType.Won, 80, 600);
 
         mockExpectedRoll(80);
@@ -76,7 +76,7 @@ describe('The Gambling Mode Threshold', () => {
         expect(gambleMode.winnings(200, false)).toEqual(expected);
     });
 
-    it('should return a winning result if the roll is bigger than the threshold', async () => {
+    it('should return a winning result if the roll is bigger than the threshold', () => {
         const expected = new GambleResult(GambleResultType.Lost, 30, 200);
 
         mockExpectedRoll(30);

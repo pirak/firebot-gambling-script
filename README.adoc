@@ -57,6 +57,7 @@ image::command_setup_script.png[Command Setup Script]
 The ‘Jackpot Percent’ parameter defines how many of the lost points go into the jackpot.
 By setting the percentage to 0 or less the jackpot can be disabled.
 
+.Jackpot Calculation
 [example]
 --
 For a value of 50: if a user loses 80 points when gambling,
@@ -96,6 +97,30 @@ The setting ‘Threshold Win/Lose’ defines the gamble result:
 The ‘Jackpot Target Roll’ overrides those results.
 If the roll is exactly the jackpot target, the user wins the entire jackpot of 500 points, then having 1500 points.
 You can set the target to a value that can not be rolled in a regular game (e.g. -1, or anything bigger than your value for `maxRoll`) to disable the Jackpot
+
+
+=== Ranges
+
+This is an extension of the Threshold/Bigger Than Target mode, where multiple targets can be defined.
+You can define a list of custom ranges with custom multipliers
+(See the other mode above for an explanation of the multiplier value).
+
+.Example Configuration
+[example]
+--
+You can set it so that the user
+
+* loses the entered points on a roll between 0 and 25 (multiplier -1),
+* no points change between 26 and 41 (multiplier 0),
+* the jackpot is won on 42 (range from 42 to 42),
+* no points change between 43 and 75, and
+* the user wins double the entered points between 76 and 100.
+--
+
+The ranges must not overlap, and there must not be any gaps.
+They do not have to start at 0 and end at 100, though.
+Setting a range for the Jackpot is optional.
+It is possible to set the Jackpot for multiple values/ranges.
 
 
 == Usage
