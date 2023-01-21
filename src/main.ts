@@ -13,7 +13,7 @@ import { buildGambleEffect, Range } from './gamble-effect';
 import { GambleModeRanges, RangeError } from './model/gamble-mode-ranges';
 import { WinRange } from './model/win-range';
 
-const scriptVersion = '1.0.1';
+const scriptVersion = '1.1.0';
 
 export enum EventNames {
     VALIDATE_INPUT = 'pirak-custom-gambling-validate-input',

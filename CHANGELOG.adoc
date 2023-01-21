@@ -6,8 +6,11 @@
 
 
 == Unreleased
-* Add: new range mode (#397)
 * …
+
+
+== v1.1.0
+* Add: new range mode (#397)
 
 
 == v1.0.1
