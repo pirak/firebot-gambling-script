@@ -6,6 +6,7 @@
     ":automergePatch",
     ":automergePr",
     ":automergeRequireAllStatusChecks",
+    ":prConcurrentLimit10",
     ":semanticCommits",
     "schedule:weekly"
   ],
