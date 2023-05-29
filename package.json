@@ -24,7 +24,7 @@
   "devDependencies": {
     "@types/copy-webpack-plugin": "10.1.0",
     "@types/jest": "29.5.1",
-    "@types/node": "18.16.9",
+    "@types/node": "18.16.16",
     "@typescript-eslint/eslint-plugin": "5.57.1",
     "@typescript-eslint/parser": "5.57.1",
     "eslint": "8.40.0",
