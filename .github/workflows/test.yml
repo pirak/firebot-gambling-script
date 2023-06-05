@@ -30,7 +30,7 @@ jobs:
     - name: TypeScript Test
       run: npm run test:coverage --ci
     - name: Annotate Client Test Results
-      uses: mikepenz/action-junit-report@v3.7.6
+      uses: mikepenz/action-junit-report@v3.7.7
       if: always()
       with:
         report_paths: 'junit.xml'
