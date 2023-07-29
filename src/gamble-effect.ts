@@ -18,6 +18,13 @@ import { WinRange } from './model/win-range';
 import EffectCategory = Effects.EffectCategory;
 import Trigger = Effects.Trigger;
 
+export type Range = {
+    from: number;
+    to: number;
+    mult?: number;
+    rangeType: string;
+};
+
 type ThresholdOptions = {
     maxRoll: number;
     threshold: number;
@@ -112,7 +119,7 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
             dependencies: ['chat'],
         },
 
-        optionsTemplate: optionsTemplate,
+        optionsTemplate,
 
         optionsController: (
             $scope: Scope,
@@ -202,17 +209,13 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
 
         onTriggerEvent: async (event: { effect: Params; trigger: Trigger }) => {
             let gambleMode;
-            switch (event.effect.mode) {
-                case 'Threshold':
-                    gambleMode = new GambleModeThreshold(event.effect.thresholdOptions);
-                    break;
-                case 'Ranges':
-                    const ranges = event.effect.ranges.map((range) => WinRange.fromRange(range));
-                    gambleMode = <GambleModeRanges>GambleModeRanges.build(ranges);
-                    break;
-                case 'Percentage Linear':
-                default:
-                    gambleMode = new GambleModePercentage();
+            if (event.effect.mode === 'Threshold') {
+                gambleMode = new GambleModeThreshold(event.effect.thresholdOptions);
+            } else if (event.effect.mode === 'Ranges') {
+                const ranges = event.effect.ranges.map((range) => WinRange.fromRange(range));
+                gambleMode = <GambleModeRanges>GambleModeRanges.build(ranges);
+            } else {
+                gambleMode = new GambleModePercentage();
             }
 
             const gambleHandler = new GambleHandler(
@@ -226,13 +229,6 @@ export function buildGambleEffect(runRequest: RunRequest<ScriptParams>): Firebot
         },
     };
 }
-
-export type Range = {
-    from: number;
-    to: number;
-    mult?: number;
-    rangeType: string;
-};
 
 export async function handle(
     scriptModules: ScriptModules,

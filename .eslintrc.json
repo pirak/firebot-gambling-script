@@ -5,6 +5,7 @@
         "jest": true
     },
     "extends": [
+        "standard",
         "prettier",
         "plugin:prettier/recommended"
     ],

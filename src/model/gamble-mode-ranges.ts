@@ -53,7 +53,7 @@ export class GambleModeRanges implements GambleMode {
      * @return A game setting if all required conditions are met.
      */
     public static build(winRanges: Array<WinRange>): GambleModeRanges | RangeError {
-        if (winRanges.length == 0) {
+        if (winRanges.length === 0) {
             return RangeError.Empty;
         }
 
