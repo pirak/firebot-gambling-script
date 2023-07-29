@@ -40,7 +40,7 @@ export class NumRange {
      */
     public compareTo(other: NumRange): number {
         const lower = this.from - other.from;
-        if (lower != 0) {
+        if (lower !== 0) {
             return lower;
         } else {
             return this.to - other.to;

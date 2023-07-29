@@ -164,10 +164,10 @@ function effectTriggerBuilder(username: string, args: string[]): EffectTrigger {
         trigger: {
             type: 'command',
             metadata: {
-                username: username,
+                username,
                 userCommand: {
                     trigger: '!gamble',
-                    args: args,
+                    args,
                 },
             },
         },
