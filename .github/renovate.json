@@ -8,6 +8,7 @@
     ":automergeRequireAllStatusChecks",
     ":prConcurrentLimit10",
     ":semanticCommits",
+    "group:allNonMajor",
     "schedule:weekly"
   ],
   "platformAutomerge": true
