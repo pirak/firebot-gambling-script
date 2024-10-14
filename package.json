@@ -24,9 +24,9 @@
   "devDependencies": {
     "@types/copy-webpack-plugin": "10.1.0",
     "@types/jest": "29.5.13",
-    "@types/node": "20.16.10",
-    "@typescript-eslint/eslint-plugin": "8.8.0",
-    "@typescript-eslint/parser": "8.8.0",
+    "@types/node": "20.16.11",
+    "@typescript-eslint/eslint-plugin": "8.8.1",
+    "@typescript-eslint/parser": "8.8.1",
     "eslint": "8.57.1",
     "eslint-config-prettier": "9.1.0",
     "eslint-config-standard": "17.1.0",
@@ -43,7 +43,7 @@
     "terser-webpack-plugin": "5.3.10",
     "ts-jest": "29.2.5",
     "ts-loader": "9.5.1",
-    "typescript": "5.6.2",
+    "typescript": "5.6.3",
     "webpack": "5.95.0",
     "webpack-cli": "5.1.4"
   }
