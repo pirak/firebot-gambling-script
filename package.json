@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/jest": "29.5.14",
-    "@types/node": "20.17.11",
+    "@types/node": "20.17.14",
     "@typescript-eslint/eslint-plugin": "8.20.0",
     "@typescript-eslint/parser": "8.20.0",
     "eslint": "8.57.1",
@@ -32,7 +32,7 @@
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jest": "28.11.0",
     "eslint-plugin-n": "16.6.2",
-    "eslint-plugin-prettier": "5.2.1",
+    "eslint-plugin-prettier": "5.2.3",
     "eslint-plugin-simple-import-sort": "12.1.1",
     "firebot-custom-scripts-types": "crowbartools/firebot-custom-scripts-types#main",
     "jest": "29.7.0",
@@ -41,8 +41,8 @@
     "regenerator-runtime": "0.14.1",
     "terser-webpack-plugin": "5.3.11",
     "ts-jest": "29.2.5",
-    "ts-loader": "9.5.1",
-    "typescript": "5.7.2",
+    "ts-loader": "9.5.2",
+    "typescript": "5.7.3",
     "webpack": "5.97.1",
     "webpack-cli": "6.0.1"
   }
