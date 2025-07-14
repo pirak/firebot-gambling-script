@@ -24,8 +24,8 @@
   "devDependencies": {
     "@types/jest": "29.5.14",
     "@types/node": "20.19.7",
-    "@typescript-eslint/eslint-plugin": "8.35.1",
-    "@typescript-eslint/parser": "8.35.1",
+    "@typescript-eslint/eslint-plugin": "8.36.0",
+    "@typescript-eslint/parser": "8.36.0",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.5",
     "eslint-config-standard": "17.1.0",
@@ -43,7 +43,7 @@
     "ts-jest": "29.4.0",
     "ts-loader": "9.5.2",
     "typescript": "5.8.3",
-    "webpack": "5.99.9",
+    "webpack": "5.100.1",
     "webpack-cli": "6.0.1"
   }
 }
