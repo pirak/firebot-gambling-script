@@ -22,7 +22,7 @@
     "update": "npm upgrade-interactive --latest"
   },
   "devDependencies": {
-    "@types/jest": "29.5.14",
+    "@types/jest": "30.0.0",
     "@types/node": "20.19.9",
     "@typescript-eslint/eslint-plugin": "8.38.0",
     "@typescript-eslint/parser": "8.38.0",
@@ -35,7 +35,7 @@
     "eslint-plugin-prettier": "5.5.3",
     "eslint-plugin-simple-import-sort": "12.1.1",
     "firebot-custom-scripts-types": "crowbartools/firebot-custom-scripts-types#main",
-    "jest": "29.7.0",
+    "jest": "30.0.5",
     "jest-junit": "16.0.0",
     "prettier": "3.6.2",
     "regenerator-runtime": "0.14.1",
