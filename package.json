@@ -40,7 +40,7 @@
     "prettier": "3.6.2",
     "regenerator-runtime": "0.14.1",
     "terser-webpack-plugin": "5.3.14",
-    "ts-jest": "29.4.0",
+    "ts-jest": "29.4.1",
     "ts-loader": "9.5.2",
     "typescript": "5.8.3",
     "webpack": "5.100.2",
