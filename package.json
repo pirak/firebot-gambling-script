@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@types/jest": "30.0.0",
-    "@types/node": "20.19.28",
+    "@types/node": "20.19.30",
     "@typescript-eslint/eslint-plugin": "8.52.0",
     "@typescript-eslint/parser": "8.52.0",
     "eslint": "8.57.1",
@@ -32,7 +32,7 @@
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jest": "29.12.1",
     "eslint-plugin-n": "16.6.2",
-    "eslint-plugin-prettier": "5.5.4",
+    "eslint-plugin-prettier": "5.5.5",
     "eslint-plugin-simple-import-sort": "12.1.1",
     "firebot-custom-scripts-types": "crowbartools/firebot-custom-scripts-types#main",
     "jest": "30.2.0",
