@@ -23,9 +23,9 @@
   },
   "devDependencies": {
     "@types/jest": "30.0.0",
-    "@types/node": "20.19.33",
-    "@typescript-eslint/eslint-plugin": "8.56.0",
-    "@typescript-eslint/parser": "8.56.0",
+    "@types/node": "20.19.35",
+    "@typescript-eslint/eslint-plugin": "8.56.1",
+    "@typescript-eslint/parser": "8.56.1",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-config-standard": "17.1.0",
@@ -43,7 +43,7 @@
     "ts-jest": "29.4.6",
     "ts-loader": "9.5.4",
     "typescript": "5.9.3",
-    "webpack": "5.105.2",
+    "webpack": "5.105.3",
     "webpack-cli": "6.0.1"
   }
 }
