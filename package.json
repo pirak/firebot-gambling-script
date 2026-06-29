@@ -24,8 +24,8 @@
   "devDependencies": {
     "@types/jest": "30.0.0",
     "@types/node": "20.19.43",
-    "@typescript-eslint/eslint-plugin": "8.61.1",
-    "@typescript-eslint/parser": "8.61.1",
+    "@typescript-eslint/eslint-plugin": "8.62.0",
+    "@typescript-eslint/parser": "8.62.0",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-config-standard": "17.1.0",
@@ -37,13 +37,13 @@
     "firebot-custom-scripts-types": "crowbartools/firebot-custom-scripts-types#main",
     "jest": "30.4.2",
     "jest-junit": "16.0.0",
-    "prettier": "3.8.5",
+    "prettier": "3.9.1",
     "regenerator-runtime": "0.14.1",
     "terser-webpack-plugin": "5.6.1",
     "ts-jest": "29.4.11",
     "ts-loader": "9.6.2",
     "typescript": "5.9.3",
-    "webpack": "5.107.2",
+    "webpack": "5.108.1",
     "webpack-cli": "6.0.1"
   }
 }
