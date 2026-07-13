@@ -37,7 +37,7 @@
     "firebot-custom-scripts-types": "crowbartools/firebot-custom-scripts-types#main",
     "jest": "30.4.2",
     "jest-junit": "16.0.0",
-    "prettier": "3.9.4",
+    "prettier": "3.9.5",
     "regenerator-runtime": "0.14.1",
     "terser-webpack-plugin": "5.6.1",
     "ts-jest": "29.4.11",
