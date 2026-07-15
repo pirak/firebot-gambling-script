@@ -36,7 +36,7 @@
     "eslint-plugin-simple-import-sort": "13.0.0",
     "firebot-custom-scripts-types": "crowbartools/firebot-custom-scripts-types#main",
     "jest": "30.4.2",
-    "jest-junit": "16.0.0",
+    "jest-junit": "17.0.0",
     "prettier": "3.9.5",
     "regenerator-runtime": "0.14.1",
     "terser-webpack-plugin": "5.6.1",
