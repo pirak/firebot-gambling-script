@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: 2023 Firebot Gambling Script Contributors
+#
+# SPDX-License-Identifier: EUPL-1.2
+
+name: Test
+
+on:
+  push:
+    branches: [main, staging, trying]
+  pull_request:
+    branches: [main]
+  merge_group:
+
+env:
+  CI: true
+  node: 'lts/*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: Use Node.js ${{ env.node }}
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ env.node }}
+        cache: 'npm'
+    - name: Install Dependencies
+      run: npm install
+    - name: TypeScript Test
+      run: npm run test:coverage --ci
+    - name: Annotate Client Test Results
+      uses: mikepenz/action-junit-report@v6.4.2
+      if: always()
+      with:
+        report_paths: 'junit.xml'
+
+  style:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - name: Use Node.js ${{ env.node }}
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ env.node }}
+        cache: 'npm'
+    - name: Install Dependencies
+      run: npm install
+    - name: TypeScript Formatting
+      run: npm run prettier:check
+    - name: TypeScript Code Style
+      run: npm run lint
+      if: success() || failure()
