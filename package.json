@@ -24,13 +24,13 @@
   "devDependencies": {
     "@types/jest": "30.0.0",
     "@types/node": "20.19.43",
-    "@typescript-eslint/eslint-plugin": "8.63.0",
-    "@typescript-eslint/parser": "8.63.0",
+    "@typescript-eslint/eslint-plugin": "8.65.0",
+    "@typescript-eslint/parser": "8.65.0",
     "eslint": "8.57.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-config-standard": "17.1.0",
     "eslint-plugin-import": "2.32.0",
-    "eslint-plugin-jest": "29.15.5",
+    "eslint-plugin-jest": "29.16.0",
     "eslint-plugin-n": "16.6.2",
     "eslint-plugin-prettier": "5.5.6",
     "eslint-plugin-simple-import-sort": "13.0.0",
@@ -43,7 +43,7 @@
     "ts-jest": "29.4.12",
     "ts-loader": "9.6.2",
     "typescript": "5.9.3",
-    "webpack": "5.108.4",
+    "webpack": "5.109.0",
     "webpack-cli": "7.2.1"
   }
 }
